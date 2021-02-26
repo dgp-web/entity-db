@@ -1,4 +1,4 @@
-import { createEntityState, EntityTypeMap, KVS } from "entity-store";
+import {createEntityState, EntityTypeMap, KVS} from "entity-store";
 import {
     AddEntityActionParamsMap,
     ClearEntityActionParamsList,
@@ -37,7 +37,11 @@ export interface EntityDb<TEntityTypeMap extends EntityTypeMap> {
     dispatch$(action: CompositeEntityActionPayload<TEntityTypeMap, null>): Promise<void>;
 
     get$(selection: CompositeEntityQuery<TEntityTypeMap>): Promise<CompositeEntityQueryResult<TEntityTypeMap>>;
+
+    get$<TMappingResult>(selection: CompositeEntityQuery<TEntityTypeMap>,
+                         map?: (queryResult: CompositeEntityQueryResult<TEntityTypeMap>) => TMappingResult): Promise<TMappingResult>;
 }
+
 export type PouchDbFactory = () => PouchDB.Database;
 
 export function createEntityPouchDb<TEntityTypeMap extends EntityTypeMap>(
@@ -80,7 +84,8 @@ export function createEntityPouchDb<TEntityTypeMap extends EntityTypeMap>(
     }
 
     return {
-        get$: async (selection: CompositeEntityQuery<TEntityTypeMap>) => {
+        get$: async <TMappingResult>(selection: CompositeEntityQuery<TEntityTypeMap>,
+                                     map?: (queryResult: CompositeEntityQueryResult<TEntityTypeMap>) => TMappingResult): Promise<CompositeEntityQueryResult<TEntityTypeMap> | TMappingResult> => {
 
             const result: CompositeEntityQueryResult<TEntityTypeMap> = {};
 
@@ -120,7 +125,12 @@ export function createEntityPouchDb<TEntityTypeMap extends EntityTypeMap>(
                 }
             });
 
-            return Promise.resolve<CompositeEntityQueryResult<TEntityTypeMap>>(result);
+            if (map !== undefined && map == null) {
+                return Promise.resolve<TMappingResult>(map(result));
+            } else {
+                return Promise.resolve<CompositeEntityQueryResult<TEntityTypeMap>>(result);
+            }
+
         },
 
         initialize$: async () => {
