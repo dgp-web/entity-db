@@ -125,7 +125,7 @@ export function createEntityPouchDb<TEntityTypeMap extends EntityTypeMap>(
                 }
             });
 
-            if (map !== undefined && map == null) {
+            if (map !== undefined && map !== null) {
                 return Promise.resolve<TMappingResult>(map(result));
             } else {
                 return Promise.resolve<CompositeEntityQueryResult<TEntityTypeMap>>(result);
