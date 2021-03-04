@@ -1,4 +1,4 @@
-import { createEntityState } from "entity-store";
+import {createEntityState} from "entity-store";
 
 export async function initialize$(dbConnection: PouchDB.Database,
                                   entityTypes: Array<string>): Promise<void> {
@@ -15,5 +15,5 @@ export async function initialize$(dbConnection: PouchDB.Database,
         } as PouchDB.Core.PostDocument<any>;
     });
 
-    return dbConnection.bulkDocs(bulkActions).then();
+    await dbConnection.bulkDocs(bulkActions);
 }

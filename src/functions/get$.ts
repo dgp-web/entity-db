@@ -1,6 +1,6 @@
-import { EntityTypeMap } from "entity-store";
+import {EntityTypeMap} from "entity-store";
 import * as _ from "lodash";
-import { CompositeEntityQuery, CompositeEntityQueryResult } from "../models";
+import {CompositeEntityQuery, CompositeEntityQueryResult} from "../models";
 
 export async function get$<TEntityTypeMap extends EntityTypeMap, TMappingResult>(
     dbConnection: PouchDB.Database,
@@ -15,9 +15,7 @@ export async function get$<TEntityTypeMap extends EntityTypeMap, TMappingResult>
 
     const entityTypeDocs = await dbConnection.bulkGet({
         docs: allDocsResult.rows.map(x => {
-            return {
-                id: x.id
-            } as any;
+            return {id: x.id} as any;
         })
     });
 

@@ -33,10 +33,10 @@ export function processRequest$<T>(payload: ProcessRequestPayload<T>): Promise<T
             () => payload.publishResult(),
             () => payload.publishResult
         ),
-        switchMap(() => payload.dbConnection.close()),
+       /* switchMap(() => payload.dbConnection.close()),
         catchError((err, caught) => {
             return payload.dbConnection.close().then(() => empty());
-        }),
+        }),*/
         defaultIfEmpty(null)
     );
 
