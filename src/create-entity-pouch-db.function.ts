@@ -25,36 +25,40 @@ export function createEntityPouchDb<TEntityTypeMap extends EntityTypeMap>(
 
     const closeDbTimer$ = new Subject<number>();
 
-    closeDbTimer$.pipe(
-        switchMap(period => {
-            if (period === null) return of(null);
+    if (typeof dbRef === "function") {
+        closeDbTimer$.pipe(
+            switchMap(period => {
+                if (period === null) return of(null);
 
-            return timer(period);
-        }),
-        filter(x => x !== null),
-        switchMap(() => {
-            if (!currentDbInstance$.value || !currentDbInstance$.value.dbConnection) return of(null);
+                return timer(period);
+            }),
+            filter(x => x !== null),
+            switchMap(() => {
+                if (!currentDbInstance$.value || !currentDbInstance$.value.dbConnection) return of(null);
 
-            /**
-             * Mark DB as closing
-             */
-            currentDbInstance$.next({
-                dbConnection: currentDbInstance$.value.dbConnection,
-                isDbConnectionClosing: true
-            });
-            return currentDbInstance$.value.dbConnection.close().then(() => {
                 /**
-                 * Mark DB as closed and removed
+                 * Mark DB as closing
                  */
                 currentDbInstance$.next({
-                    dbConnection: null,
-                    isDbConnectionClosing: false
-                })
-            });
-        })
-    ).subscribe();
+                    dbConnection: currentDbInstance$.value.dbConnection,
+                    isDbConnectionClosing: true
+                });
+                return currentDbInstance$.value.dbConnection.close().then(() => {
+                    /**
+                     * Mark DB as closed and removed
+                     */
+                    currentDbInstance$.next({
+                        dbConnection: null,
+                        isDbConnectionClosing: false
+                    })
+                });
+            })
+        ).subscribe();
+    }
 
     function startRequest$(): Promise<PouchDB.Database> {
+
+        if (typeof dbRef === "object") return Promise.resolve(dbRef);
 
         const currentValue = currentDbInstance$.value;
 
