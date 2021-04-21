@@ -105,8 +105,16 @@ export function createEntityPouchDb<TEntityTypeMap extends EntityTypeMap>(
         return startRequest$().then(dbConnection => processRequest$({
             dbConnection,
             request$: x.request$(dbConnection),
-            publishResult: x.publishResult
-        })).then(() => finalizeRequest$());
+            publishResult: x.publishResult,
+            publishError: x.publishError
+        })).then(() => finalizeRequest$())
+            /**
+             * We catch all errors in the chain to ensure that scheduler
+             * cannot stop.
+             */
+            .catch(e => {
+                console.error("DB error: ", e);
+            });
 
     })).subscribe();
 
@@ -115,23 +123,26 @@ export function createEntityPouchDb<TEntityTypeMap extends EntityTypeMap>(
             selection: CompositeEntityQuery<TEntityTypeMap>,
             map?: (queryResult: CompositeEntityQueryResult<TEntityTypeMap>) => TMappingResult
         ): Promise<CompositeEntityQueryResult<TEntityTypeMap> | TMappingResult> => {
-            return new Promise(resolve => requestScheduler$.next({
+            return new Promise((resolve, reject) => requestScheduler$.next({
                 request$: dbConnection => get$(dbConnection, selection, map),
-                publishResult: resolve
+                publishResult: resolve,
+                publishError: reject
             }));
         },
 
         initialize$: () => {
-            return new Promise(resolve => requestScheduler$.next({
+            return new Promise((resolve, reject) => requestScheduler$.next({
                 request$: dbConnection => initialize$(dbConnection, entityTypes as Array<string>),
-                publishResult: resolve
+                publishResult: resolve,
+                publishError: reject
             }))
         },
 
         dispatch$: (action: CompositeEntityActionPayload<TEntityTypeMap, null>) => {
-            return new Promise(resolve => requestScheduler$.next({
+            return new Promise((resolve, reject) => requestScheduler$.next({
                 request$: dbConnection => dispatch$(dbConnection, action),
-                publishResult: resolve
+                publishResult: resolve,
+                publishError: reject
             }))
         }
     };

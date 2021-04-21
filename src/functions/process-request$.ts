@@ -1,10 +1,11 @@
-import { empty, from, Observable } from "rxjs";
-import { catchError, defaultIfEmpty, first, switchMap, tap } from "rxjs/operators";
+import { from, Observable } from "rxjs";
+import { defaultIfEmpty, first, tap } from "rxjs/operators";
 
 export interface ProcessRequestPayload<T> {
     readonly request$: Promise<T> | Observable<T>;
     readonly dbConnection: PouchDB.Database;
     readonly publishResult: (payload?: any) => void;
+    readonly publishError: (payload?: any) => void;
 }
 
 /**
@@ -30,13 +31,13 @@ export function processRequest$<T>(payload: ProcessRequestPayload<T>): Promise<T
 
     interceptedObs$ = interceptedObs$.pipe(
         tap(value => payload.publishResult(value),
-            () => payload.publishResult(),
-            () => payload.publishResult
+            e => payload.publishError(e),
+            () => payload.publishResult()
         ),
-       /* switchMap(() => payload.dbConnection.close()),
-        catchError((err, caught) => {
-            return payload.dbConnection.close().then(() => empty());
-        }),*/
+        /* switchMap(() => payload.dbConnection.close()),
+         catchError((err, caught) => {
+             return payload.dbConnection.close().then(() => empty());
+         }),*/
         defaultIfEmpty(null)
     );
 
