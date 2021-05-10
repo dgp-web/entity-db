@@ -1,6 +1,6 @@
 {
   "name": "entity-db",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "license": "MIT",
   "author": {
     "name": "dgp-web",
@@ -14,6 +14,7 @@
     "test": "karma start"
   },
   "dependencies": {
+    "data-modeling": "^2.0.0",
     "pouchdb": "^7.1.1",
     "entity-store": "^1.5",
     "rxjs": "6",

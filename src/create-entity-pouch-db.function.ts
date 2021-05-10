@@ -11,6 +11,7 @@ import {
     PouchDbFactory,
     ScheduledRequest
 } from "./models";
+import { Many, Mutable } from "data-modeling";
 
 export function createEntityPouchDb<TEntityTypeMap extends MigrationEntities>(
     payload: {
@@ -24,7 +25,10 @@ export function createEntityPouchDb<TEntityTypeMap extends MigrationEntities>(
 ): EntityDb<TEntityTypeMap> {
 
     const dbRef = payload.dbRef;
-    const entityTypes = payload.entityTypes;
+    const entityTypes = payload.entityTypes as Mutable<Many<string>>;
+    if (!entityTypes.includes("migrationInfo")) {
+        entityTypes.push("migrationInfo");
+    }
     const migrations = payload.migrations ? payload.migrations : [];
 
     function getDbConnection() {
