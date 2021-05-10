@@ -1,11 +1,17 @@
-import { EntityTypeMap } from "entity-store";
 import { CompositeEntityActionPayload } from "entity-store/src/models";
 import { concatMap, filter, first, map, switchMap } from "rxjs/operators";
 import { BehaviorSubject, of, Subject, timer } from "rxjs";
-import { dispatch$, get$, initialize$, processRequest$ } from "./functions";
-import { CompositeEntityQuery, CompositeEntityQueryResult, EntityDb, PouchDbFactory, ScheduledRequest } from "./models";
+import { dispatch$, get$, initialize$, processRequest$, runMigrations$ } from "./functions";
+import {
+    CompositeEntityQuery,
+    CompositeEntityQueryResult,
+    EntityDb,
+    MigrationEntities,
+    PouchDbFactory,
+    ScheduledRequest
+} from "./models";
 
-export function createEntityPouchDb<TEntityTypeMap extends EntityTypeMap>(
+export function createEntityPouchDb<TEntityTypeMap extends MigrationEntities>(
     entityTypes: ReadonlyArray<keyof TEntityTypeMap>,
     dbRef: PouchDB.Database | PouchDbFactory,
     config = {
@@ -118,7 +124,7 @@ export function createEntityPouchDb<TEntityTypeMap extends EntityTypeMap>(
 
     })).subscribe();
 
-    return {
+    const db = {
         get$: <TMappingResult>(
             selection: CompositeEntityQuery<TEntityTypeMap>,
             map?: (queryResult: CompositeEntityQueryResult<TEntityTypeMap>) => TMappingResult
@@ -144,6 +150,10 @@ export function createEntityPouchDb<TEntityTypeMap extends EntityTypeMap>(
                 publishResult: resolve,
                 publishError: reject
             }))
-        }
-    };
+        },
+    } as unknown as EntityDb<TEntityTypeMap>;
+
+    db.runMigrations$ = migrations => runMigrations$({db, migrations});
+
+    return db;
 }

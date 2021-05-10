@@ -16,11 +16,13 @@
   "dependencies": {
     "pouchdb": "^7.1.1",
     "entity-store": "^1.5",
-    "rxjs": "6"
+    "rxjs": "6",
+    "lodash": "^4"
   },
   "private": true,
   "devDependencies": {
     "@types/jasmine": "^3.3.9",
+    "@types/lodash": "^4",
     "@types/pouchdb": "^6.4.0",
     "awesome-typescript-loader": "^5.0.0",
     "cpx": "^1.5.0",
