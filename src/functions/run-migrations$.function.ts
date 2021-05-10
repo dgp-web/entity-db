@@ -30,7 +30,8 @@ export async function runMigrations$<TEntities extends MigrationEntities>(payloa
                         migrationId: migration.migrationId,
                         label: migration.label,
                         position: migration.position,
-                        description: migration.description
+                        description: migration.description,
+                        executionDate: new Date().valueOf()
                     }
                 }
             } as AddEntityActionParamsMap<TEntities, null>

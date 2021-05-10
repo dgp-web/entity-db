@@ -3,4 +3,5 @@ export interface MigrationInfo {
     readonly label: string;
     readonly description?: string;
     readonly position: number;
+    readonly executionDate?: number;
 }
