@@ -2,7 +2,6 @@ import { EntityTypeMap } from "entity-store";
 import { CompositeEntityActionPayload } from "entity-store/src/models";
 import { CompositeEntityQuery } from "./composite-entity-query.model";
 import { CompositeEntityQueryResult } from "./composite-entity-query-result.model";
-import { Migration } from "./migration.model";
 
 export interface EntityDb<TEntityTypeMap extends EntityTypeMap> {
     initialize$(): Promise<void>;
@@ -13,6 +12,4 @@ export interface EntityDb<TEntityTypeMap extends EntityTypeMap> {
 
     get$<TMappingResult>(selection: CompositeEntityQuery<TEntityTypeMap>,
                          map?: (queryResult: CompositeEntityQueryResult<TEntityTypeMap>) => TMappingResult): Promise<TMappingResult>;
-
-    runMigrations$(migrations: ReadonlyArray<Migration<TEntityTypeMap | any, TEntityTypeMap | any>>): Promise<void>;
 }

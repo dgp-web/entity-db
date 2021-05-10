@@ -6,18 +6,26 @@ import {
     CompositeEntityQuery,
     CompositeEntityQueryResult,
     EntityDb,
+    Migration,
     MigrationEntities,
     PouchDbFactory,
     ScheduledRequest
 } from "./models";
 
 export function createEntityPouchDb<TEntityTypeMap extends MigrationEntities>(
-    entityTypes: ReadonlyArray<keyof TEntityTypeMap>,
-    dbRef: PouchDB.Database | PouchDbFactory,
+    payload: {
+        readonly entityTypes: ReadonlyArray<keyof TEntityTypeMap>,
+        readonly dbRef: PouchDB.Database | PouchDbFactory,
+        readonly migrations?: ReadonlyArray<Migration<any, any>>
+    },
     config = {
         keepIdleConnectionAlivePeriod: 5000
     }
 ): EntityDb<TEntityTypeMap> {
+
+    const dbRef = payload.dbRef;
+    const entityTypes = payload.entityTypes;
+    const migrations = payload.migrations ? payload.migrations : [];
 
     function getDbConnection() {
         if (typeof dbRef === "object") return dbRef as PouchDB.Database;
@@ -153,7 +161,16 @@ export function createEntityPouchDb<TEntityTypeMap extends MigrationEntities>(
         },
     } as unknown as EntityDb<TEntityTypeMap>;
 
-    db.runMigrations$ = migrations => runMigrations$({db, migrations});
+    db.initialize$ = async () => {
+        await new Promise((resolve, reject) => requestScheduler$.next({
+            request$: dbConnection => initialize$(dbConnection, entityTypes as Array<string>),
+            publishResult: resolve,
+            publishError: reject
+        }));
+        if (migrations.length > 0) {
+            await runMigrations$({db, migrations});
+        }
+    }
 
     return db;
 }
