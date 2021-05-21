@@ -1,4 +1,4 @@
-import { EntityTypeMap } from "entity-store";
+import { EntityTypeMap } from "data-modeling";
 import { CompositeEntityActionPayload } from "entity-store/src/models";
 import { CompositeEntityQuery } from "./composite-entity-query.model";
 import { CompositeEntityQueryResult } from "./composite-entity-query-result.model";
