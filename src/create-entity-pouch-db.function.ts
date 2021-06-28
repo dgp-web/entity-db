@@ -1,17 +1,14 @@
 import { CompositeEntityActionPayload } from "entity-store/src/models";
-import { concatMap } from "rxjs/operators";
 import {
     createCloseDbTimer,
     createDbConnectionSource,
     createRequestScheduler,
     dispatch$,
-    finalizeRequest$,
     get$,
     initialize$,
-    processRequest$,
     registerCloseTimer,
+    registerRequestProcessor,
     runMigrations$,
-    startRequest$,
     tryPush
 } from "./functions";
 import {
@@ -43,25 +40,7 @@ export function createEntityPouchDb<TEntityTypeMap extends MigrationEntities>(
 
     if (typeof dbRef === "function") registerCloseTimer({closeDbTimer$, dbConnectionSource$});
 
-    requestScheduler$.pipe(concatMap(x => {
-
-        return startRequest$({dbRef, closeDbTimer$, currentDbInstance$: dbConnectionSource$})
-            .then(dbConnection => processRequest$({
-                dbConnection,
-                request$: x.request$(dbConnection),
-                publishResult: x.publishResult,
-                publishError: x.publishError
-            }))
-            .then(() => finalizeRequest$({closeDbTimer$}, config))
-            /**
-             * We catch all errors in the chain to ensure that scheduler
-             * cannot stop.
-             */
-            .catch(e => {
-                console.error("DB error: ", e);
-            });
-
-    })).subscribe();
+    registerRequestProcessor({closeDbTimer$, dbConnectionSource$, requestScheduler$, dbRef}, config);
 
     const db = {
         get$: <TMappingResult>(
