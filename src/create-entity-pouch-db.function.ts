@@ -23,7 +23,8 @@ export function createEntityPouchDb<TEntityTypeMap extends MigrationEntities>(
     const closeDbTimer$ = createCloseDbTimer();
     const requestScheduler$ = createRequestScheduler();
 
-    if (typeof dbRef === "function") createCloseDbEffect({closeDbTimer$, dbConnectionSource$});
+    // TODO: There is not error handler here!!!
+    if (typeof dbRef === "function") createCloseDbEffect({closeDbTimer$, dbConnectionSource$}).subscribe();
 
     createProcessRequestEffect({closeDbTimer$, dbConnectionSource$, requestScheduler$, dbRef}, config);
 

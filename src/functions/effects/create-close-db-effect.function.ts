@@ -1,4 +1,4 @@
-import { Subscription, timer } from "rxjs";
+import { Observable, timer } from "rxjs";
 import { filter, switchMap } from "rxjs/operators";
 import { createClosingDbConnectionInfo } from "../factories/create-closing-db-connection-info.function";
 import { hasOpenDbConnection } from "../db-connection/has-open-db-connection.function";
@@ -10,7 +10,7 @@ import { WithCloseDbTimer } from "../../models/with-close-db-timer.model";
 export interface CloseDbEffectPayload extends WithDbConnectionSource, WithCloseDbTimer {
 }
 
-export function createCloseDbEffect(payload: CloseDbEffectPayload): Subscription {
+export function createCloseDbEffect(payload: CloseDbEffectPayload): Observable<void> {
     const closeDbTimer$ = payload.closeDbTimer$;
     const dbConnectionSource$ = payload.dbConnectionSource$;
 
@@ -24,12 +24,12 @@ export function createCloseDbEffect(payload: CloseDbEffectPayload): Subscription
         }),
         filter(x => x !== null),
         switchMap(() => {
-            if (!hasOpenDbConnection(dbConnectionSource$.value)) return ofNull();
+            if (!hasOpenDbConnection(dbConnectionSource$.value)) return ofNull<void>();
 
             dbConnectionSource$.next(createClosingDbConnectionInfo(dbConnectionSource$.value.dbConnection));
             return dbConnectionSource$.value.dbConnection.close().then(() => markDbConnectionAsClosed({
                 dbConnectionSource$
             }));
         })
-    ).subscribe();
+    );
 }
