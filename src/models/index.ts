@@ -1,6 +1,7 @@
 export * from "./close-db-timer.model";
 export * from "./composite-entity-query.model";
 export * from "./composite-entity-query-result.model";
+export * from "./crud-entity-db.model";
 export * from "./db-connection-info.model";
 export * from "./db-connection-source.model";
 export * from "./entity-db.model";
@@ -15,3 +16,5 @@ export * from "./pouch-db-factory.model";
 export * from "./pouch-db-ref.model";
 export * from "./request-scheduler.model";
 export * from "./scheduled-request.model";
+export * from "./crud-entity-db.model";
+export * from "./with-request-scheduler.model";

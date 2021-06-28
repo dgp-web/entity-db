@@ -1,4 +1,4 @@
-import { DbConnectionInfo } from "../models";
+import { DbConnectionInfo } from "../../models";
 
 export function isDbConnectionOpen(x: DbConnectionInfo) {
     return x !== null

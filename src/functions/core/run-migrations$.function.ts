@@ -1,4 +1,4 @@
-import { EntityDb, Migration, MigrationEntities } from "../models";
+import { EntityDb, Migration, MigrationEntities } from "../../models";
 import * as _ from "lodash";
 import { AddEntityActionParamsMap } from "entity-store/src/models/composite-entity-action-payload.model";
 

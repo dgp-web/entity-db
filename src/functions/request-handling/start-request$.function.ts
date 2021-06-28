@@ -1,8 +1,8 @@
-import { DbConnectionInfo, PouchDbRef } from "../models";
+import { DbConnectionInfo, PouchDbRef } from "../../models";
 import { BehaviorSubject, Subject } from "rxjs";
-import { resolvePouchDbDatabase } from "./resolve-pouch-db-database.function";
+import { resolvePouchDbDatabase } from "../resolve-pouch-db-database.function";
 import { filter, first, map } from "rxjs/operators";
-import { isDbConnectionOpen } from "./is-db-connection-open.function";
+import { isDbConnectionOpen } from "../db-connection";
 
 export interface StartRequest$Payload {
     readonly dbRef: PouchDbRef;

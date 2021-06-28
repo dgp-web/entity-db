@@ -1,4 +1,4 @@
-import { DbConnectionInfo, DbConnectionSource } from "../models";
+import { DbConnectionInfo, DbConnectionSource } from "../../models";
 import { BehaviorSubject } from "rxjs";
 
 export function createDbConnectionSource(): DbConnectionSource {

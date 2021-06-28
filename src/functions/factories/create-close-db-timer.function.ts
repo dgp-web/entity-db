@@ -1,4 +1,4 @@
-import { CloseDbTimer } from "../models";
+import { CloseDbTimer } from "../../models";
 import { Subject } from "rxjs";
 
 export function createCloseDbTimer(): CloseDbTimer {

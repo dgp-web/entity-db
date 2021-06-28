@@ -1,5 +1,5 @@
-import { CloseDbTimer } from "../models";
-import { entityPouchDbConfig } from "../constants";
+import { CloseDbTimer } from "../../models";
+import { entityPouchDbConfig } from "../../constants";
 
 export interface FinalizeRequest$ {
     readonly closeDbTimer$: CloseDbTimer;

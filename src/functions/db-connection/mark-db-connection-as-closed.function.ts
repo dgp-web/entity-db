@@ -1,6 +1,6 @@
 import { BehaviorSubject } from "rxjs";
-import { DbConnectionInfo } from "../models";
-import { emptyConnectionInfo } from "../constants";
+import { DbConnectionInfo } from "../../models";
+import { emptyConnectionInfo } from "../../constants";
 
 export interface MarkDbConnectionAsClosedPayload {
     readonly dbConnectionSource$: BehaviorSubject<DbConnectionInfo>;

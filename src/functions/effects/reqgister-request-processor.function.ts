@@ -1,16 +1,13 @@
-import { CloseDbTimer, DbConnectionSource, PouchDbRef, RequestScheduler } from "../models";
-import { entityPouchDbConfig } from "../constants";
+import { CloseDbTimer, DbConnectionSource, PouchDbRef, WithRequestScheduler } from "../../models";
+import { entityPouchDbConfig } from "../../constants";
 import { Subscription } from "rxjs";
 import { concatMap } from "rxjs/operators";
-import { startRequest$ } from "./start-request$.function";
-import { processRequest$ } from "./process-request$";
-import { finalizeRequest$ } from "./finalize-request$.function";
+import { finalizeRequest$, processRequest$, startRequest$ } from "../request-handling";
 
-export interface RegisterRequestProcessorPayload {
+export interface RegisterRequestProcessorPayload extends WithRequestScheduler {
     readonly dbRef: PouchDbRef;
     readonly dbConnectionSource$: DbConnectionSource;
     readonly closeDbTimer$: CloseDbTimer;
-    readonly requestScheduler$: RequestScheduler;
 }
 
 export function registerRequestProcessor(
