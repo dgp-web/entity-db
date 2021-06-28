@@ -1,7 +1,7 @@
 import { CompositeEntityActionPayload } from "entity-store/src/models";
 import { concatMap, filter, first, map, switchMap } from "rxjs/operators";
 import { BehaviorSubject, of, Subject, timer } from "rxjs";
-import { dispatch$, get$, initialize$, processRequest$, runMigrations$ } from "./functions";
+import { dispatch$, get$, initialize$, processRequest$, resolvePouchDbDatabase, runMigrations$ } from "./functions";
 import {
     CompositeEntityQuery,
     CompositeEntityQueryResult,
@@ -27,10 +27,6 @@ export function createEntityPouchDb<TEntityTypeMap extends MigrationEntities>(
     }
     const migrations = payload.migrations ? payload.migrations : [];
 
-    function getDbConnection() {
-        if (typeof dbRef === "object") return dbRef as PouchDB.Database;
-        else if (typeof dbRef === "function") return dbRef();
-    }
 
     const currentDbInstance$ = new BehaviorSubject<DbConnectionInfo>(null);
 
@@ -79,7 +75,7 @@ export function createEntityPouchDb<TEntityTypeMap extends MigrationEntities>(
          */
         if (!currentValue || !currentValue.dbConnection) {
             currentDbInstance$.next({
-                dbConnection: getDbConnection(),
+                dbConnection: resolvePouchDbDatabase(dbRef),
                 isDbConnectionClosing: false
             });
         }
