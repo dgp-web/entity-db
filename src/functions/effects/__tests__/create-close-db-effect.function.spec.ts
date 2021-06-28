@@ -1,4 +1,4 @@
-import {createCloseDbEffect} from "../create-close-db-effect.function";
+import {createCloseDbEffect, createCloseDbEffectConfig} from "../create-close-db-effect.function";
 import {Observable} from "rxjs";
 import {DbConnectionInfo, DbConnectionSource} from "../../../models";
 import {createDbConnectionSource} from "../../factories/create-db-connection-source.function";
@@ -50,5 +50,28 @@ describe("createCloseDbEffect", () => {
         expect(dbConnectionSource$.next).toHaveBeenCalledWith(createClosingDbConnectionInfo(info.dbConnection));
     });
 
+    it(`and then call dbConnection.close`, async () => {
+        const info: DbConnectionInfo = {
+            dbConnection,
+            isDbConnectionClosing: false
+        };
+        dbConnectionSource$.next(info);
+        closeDbTimer$.next(0);
+        spyOn(dbConnection, "close").and.callThrough();
+        await effect.pipe(first()).toPromise();
+        expect(dbConnection.close).toHaveBeenCalled();
+    });
+
+    it(`and then call markDbConnectionAsClosed with dbConnectionSource$`, async () => {
+        const info: DbConnectionInfo = {
+            dbConnection,
+            isDbConnectionClosing: false
+        };
+        dbConnectionSource$.next(info);
+        closeDbTimer$.next(0);
+        spyOn(createCloseDbEffectConfig, "markDbConnectionAsClosed").and.callThrough();
+        await effect.pipe(first()).toPromise();
+        expect(createCloseDbEffectConfig.markDbConnectionAsClosed).toHaveBeenCalledWith({dbConnectionSource$});
+    });
 
 });
