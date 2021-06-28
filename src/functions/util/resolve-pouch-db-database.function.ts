@@ -1,6 +1,6 @@
 import { PouchDbRef } from "../../models";
+import { resolveAsObject } from "./resolve-as-object.function";
 
 export function resolvePouchDbDatabase(dbRef: PouchDbRef): PouchDB.Database {
-    if (typeof dbRef === "object") return dbRef as PouchDB.Database;
-    else if (typeof dbRef === "function") return dbRef();
+    return resolveAsObject(dbRef);
 }

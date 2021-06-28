@@ -12,6 +12,7 @@ export * from "./migration.model";
 export * from "./migration-entities.model";
 export * from "./migration-info.model";
 export * from "./migration-task.model";
+export * from "./object-or-factory.model";
 export * from "./pouch-db-factory.model";
 export * from "./pouch-db-ref.model";
 export * from "./request-scheduler.model";
