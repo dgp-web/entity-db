@@ -1,4 +1,4 @@
-import {Observable, timer} from "rxjs";
+import {Observable} from "rxjs";
 import {filter, switchMap} from "rxjs/operators";
 import {createClosingDbConnectionInfo} from "../factories/create-closing-db-connection-info.function";
 import {hasOpenDbConnection} from "../db-connection/has-open-db-connection.function";
@@ -6,6 +6,8 @@ import {markDbConnectionAsClosed} from "../db-connection/mark-db-connection-as-c
 import {ofNull} from "../util/of-null.function";
 import {WithDbConnectionSource} from "../../models/with-db-connection-source.model";
 import {WithCloseDbTimer} from "../../models/with-close-db-timer.model";
+import {tryCreateTimer$} from "../util/try-create-timer$.function";
+import {filterNotNull} from "../util/filter-not-null.function";
 
 export interface CloseDbEffectPayload extends WithDbConnectionSource, WithCloseDbTimer {
 }
@@ -18,11 +20,8 @@ export function createCloseDbEffect(payload: CloseDbEffectPayload): Observable<v
      * Register close timer
      */
     return closeDbTimer$.pipe(
-        switchMap(period => {
-            if (period === null) return ofNull();
-            return timer(period);
-        }),
-        filter(x => x !== null),
+        switchMap(tryCreateTimer$),
+        filterNotNull(),
         switchMap(() => {
             const info = dbConnectionSource$.value
             if (!hasOpenDbConnection(info)) return ofNull<void>();
