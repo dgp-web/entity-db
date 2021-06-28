@@ -1,14 +1,13 @@
-import { CloseDbTimer, DbConnectionSource } from "../../models";
 import { Subscription, timer } from "rxjs";
 import { filter, switchMap } from "rxjs/operators";
 import { createDbConnectionInfo } from "../factories/create-db-connection-info.function";
 import { hasOpenDbConnection } from "../db-connection/has-open-db-connection.function";
 import { markDbConnectionAsClosed } from "../db-connection/mark-db-connection-as-closed.function";
 import { ofNull } from "../util/of-null.function";
+import { WithDbConnectionSource } from "../../models/with-db-connection-source.model";
+import { WithCloseDbTimer } from "../../models/with-close-db-timer.model";
 
-export interface CloseDbEffectPayload {
-    readonly closeDbTimer$: CloseDbTimer;
-    readonly dbConnectionSource$: DbConnectionSource;
+export interface CloseDbEffectPayload extends WithDbConnectionSource, WithCloseDbTimer {
 }
 
 export function createCloseDbEffect(payload: CloseDbEffectPayload): Subscription {
