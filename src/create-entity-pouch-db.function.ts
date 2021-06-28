@@ -1,15 +1,13 @@
-import {
-    createCloseDbTimer,
-    createDbConnectionSource,
-    createDbWithRequestScheduler,
-    createRequestScheduler,
-    registerCloseTimer,
-    registerRequestProcessor,
-    tryPush
-} from "./functions";
 import { EntityDb, EntityPouchDbPayload, MigrationEntities } from "./models";
 import { Many, Mutable } from "data-modeling";
 import { entityPouchDbConfig } from "./constants";
+import { createProcessRequestEffect } from "./functions/effects/create-process-request-effect.function";
+import { createCloseDbEffect } from "./functions/effects/create-close-db-effect.function";
+import { createDbWithRequestScheduler } from "./functions/factories/create-db-with-request-scheduler.function";
+import { createCloseDbTimer } from "./functions/factories/create-close-db-timer.function";
+import { createDbConnectionSource } from "./functions/factories/create-db-connection-source.function";
+import { createRequestScheduler } from "./functions/factories/create-request-scheduler.function";
+import { tryPush } from "./functions/util/try-push.function";
 
 export function createEntityPouchDb<TEntityTypeMap extends MigrationEntities>(
     payload: EntityPouchDbPayload<TEntityTypeMap>,
@@ -25,9 +23,9 @@ export function createEntityPouchDb<TEntityTypeMap extends MigrationEntities>(
     const closeDbTimer$ = createCloseDbTimer();
     const requestScheduler$ = createRequestScheduler();
 
-    if (typeof dbRef === "function") registerCloseTimer({closeDbTimer$, dbConnectionSource$});
+    if (typeof dbRef === "function") createCloseDbEffect({closeDbTimer$, dbConnectionSource$});
 
-    registerRequestProcessor({closeDbTimer$, dbConnectionSource$, requestScheduler$, dbRef}, config);
+    createProcessRequestEffect({closeDbTimer$, dbConnectionSource$, requestScheduler$, dbRef}, config);
 
     return createDbWithRequestScheduler({requestScheduler$, migrations, entityTypes});
 }

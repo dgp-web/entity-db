@@ -1,5 +1,6 @@
 import { CRUDEntityDb, MigrationEntities, WithRequestScheduler } from "../../models";
-import { createDispatch$Handler, createGet$Handler } from "../handlers";
+import { createGet$Handler } from "../handlers/create-get$-handler.function";
+import { createDispatch$Handler } from "../handlers/create-dispatch$-handler.function";
 
 export function createCRUDEntityDb<TEntityTypeMap extends MigrationEntities>(
     payload: WithRequestScheduler

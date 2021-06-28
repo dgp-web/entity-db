@@ -1,7 +1,8 @@
 import { EntityDb, Migration, MigrationEntities, WithRequestScheduler } from "../../models";
 import { Many } from "data-modeling";
 import { createCRUDEntityDb } from "./create-crud-entity-db.function";
-import { initialize$, runMigrations$ } from "../core";
+import { initialize$ } from "../core/initialize$";
+import { runMigrations$ } from "../core/run-migrations$.function";
 
 export interface CreateDbWithRequestSchedulerPayload extends WithRequestScheduler {
     readonly entityTypes: Many<string>;

@@ -1,4 +1,4 @@
-import { PouchDbRef } from "../models";
+import { PouchDbRef } from "../../models";
 
 export function resolvePouchDbDatabase(dbRef: PouchDbRef): PouchDB.Database {
     if (typeof dbRef === "object") return dbRef as PouchDB.Database;

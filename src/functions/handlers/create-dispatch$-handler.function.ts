@@ -1,6 +1,6 @@
 import { MigrationEntities, WithRequestScheduler } from "../../models";
 import { CompositeEntityActionPayload } from "entity-store/src/models";
-import { dispatch$ } from "../core";
+import { dispatch$ } from "../core/dispatch$";
 
 export function createDispatch$Handler<TEntityTypeMap extends MigrationEntities>(
     payload: WithRequestScheduler

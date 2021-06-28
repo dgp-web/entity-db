@@ -4,7 +4,7 @@ import {
     MigrationEntities,
     WithRequestScheduler
 } from "../../models";
-import { get$ } from "../core";
+import { get$ } from "../core/get$";
 
 export function createGet$Handler<TEntityTypeMap extends MigrationEntities>(
     payload: WithRequestScheduler
