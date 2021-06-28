@@ -2,7 +2,7 @@ import { CloseDbTimer, DbConnectionSource } from "../../models";
 import { Subscription, timer } from "rxjs";
 import { filter, switchMap } from "rxjs/operators";
 import { createDbConnectionInfo } from "../factories/create-db-connection-info.function";
-import { hasDbConnectionInfo } from "../db-connection/has-db-connection-info.function";
+import { hasOpenDbConnection } from "../db-connection/has-open-db-connection.function";
 import { markDbConnectionAsClosed } from "../db-connection/mark-db-connection-as-closed.function";
 import { ofNull } from "../util/of-null.function";
 
@@ -25,7 +25,7 @@ export function createCloseDbEffect(payload: CloseDbEffectPayload): Subscription
         }),
         filter(x => x !== null),
         switchMap(() => {
-            if (!hasDbConnectionInfo(dbConnectionSource$.value)) return ofNull();
+            if (!hasOpenDbConnection(dbConnectionSource$.value)) return ofNull();
 
             /**
              * Mark DB as closing

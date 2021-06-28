@@ -2,7 +2,7 @@ import { DbConnectionInfo, PouchDbRef } from "../../models";
 import { BehaviorSubject, Subject } from "rxjs";
 import { resolvePouchDbDatabase } from "../util/resolve-pouch-db-database.function";
 import { filter, first, map } from "rxjs/operators";
-import { isDbConnectionOpen } from "../db-connection/is-db-connection-open.function";
+import { hasOpenDbConnection } from "../db-connection/has-open-db-connection.function";
 
 export interface StartRequest$Payload {
     readonly dbRef: PouchDbRef;
@@ -40,7 +40,7 @@ export function startRequest$(payload: StartRequest$Payload): Promise<PouchDB.Da
          * Only pass through new values if we have a db
          * that is not closing
          */
-        filter(isDbConnectionOpen),
+        filter(hasOpenDbConnection),
         map(x => x.dbConnection),
         first()
     ).toPromise();

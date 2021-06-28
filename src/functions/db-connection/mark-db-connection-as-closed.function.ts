@@ -1,12 +1,7 @@
-import { BehaviorSubject } from "rxjs";
 import { emptyConnectionInfo } from "../../constants";
-import { DbConnectionInfo } from "../../models";
+import { WithDbConnectionSource } from "../../models/with-db-connection-source.model";
 
-export interface MarkDbConnectionAsClosedPayload {
-    readonly dbConnectionSource$: BehaviorSubject<DbConnectionInfo>;
-}
-
-export function markDbConnectionAsClosed(payload: MarkDbConnectionAsClosedPayload): void {
+export function markDbConnectionAsClosed(payload: WithDbConnectionSource): void {
     const dbConnectionSource$ = payload.dbConnectionSource$;
-    dbConnectionSource$.next(emptyConnectionInfo)
+    dbConnectionSource$.next(emptyConnectionInfo);
 }
