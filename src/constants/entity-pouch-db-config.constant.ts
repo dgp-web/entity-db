@@ -1,5 +1,5 @@
-import { EntityDbConfig } from "../models";
+import { EntityPouchDbConfig } from "../models";
 
-export const entityDbConfig: EntityDbConfig = {
+export const entityPouchDbConfig: EntityPouchDbConfig = {
     keepIdleConnectionAlivePeriod: 5000
 };

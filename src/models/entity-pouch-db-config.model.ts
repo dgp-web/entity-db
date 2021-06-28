@@ -1,3 +1,3 @@
-export interface EntityDbConfig {
+export interface EntityPouchDbConfig {
     readonly keepIdleConnectionAlivePeriod: number;
 }

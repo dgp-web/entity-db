@@ -7,22 +7,17 @@ import {
     CompositeEntityQueryResult,
     DbConnectionInfo,
     EntityDb,
-    Migration,
+    EntityPouchDbPayload,
     MigrationEntities,
-    PouchDbFactory,
     ScheduledRequest
 } from "./models";
 import { Many, Mutable } from "data-modeling";
 import { isDbConnectionOpen } from "./functions/is-db-connection-open.function";
-import { entityDbConfig } from "./constants/entity-db-config.constant";
+import { entityPouchDbConfig } from "./constants/entity-pouch-db-config.constant";
 
 export function createEntityPouchDb<TEntityTypeMap extends MigrationEntities>(
-    payload: {
-        readonly entityTypes: ReadonlyArray<keyof TEntityTypeMap>,
-        readonly dbRef: PouchDB.Database | PouchDbFactory,
-        readonly migrations?: ReadonlyArray<Migration<any, any>>
-    },
-    config = entityDbConfig
+    payload: EntityPouchDbPayload<TEntityTypeMap>,
+    config = entityPouchDbConfig
 ): EntityDb<TEntityTypeMap> {
 
     const dbRef = payload.dbRef;
