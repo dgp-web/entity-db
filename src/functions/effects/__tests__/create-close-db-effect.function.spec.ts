@@ -30,10 +30,10 @@ describe("createCloseDbEffect", () => {
     let dbConnectionSource$: DbConnectionSource;
 
     let effect: Observable<void>;
-    let db: PouchDB.Database;
+    let dbConnection: PouchDB.Database;
 
     beforeEach(() => {
-        db = createTestPouchDb();
+        dbConnection = createTestPouchDb();
         closeDbTimer$ = createTestCloseDbTimer();
         dbConnectionSource$ = createDbConnectionSource();
 
@@ -54,14 +54,15 @@ describe("createCloseDbEffect", () => {
     });
 
     it(`and calls dbConnectionSource$.next with createClosingDbConnectionInfo if there is a db connection`, async () => {
-        const dbConnection: DbConnectionInfo = {
-            dbConnection: {}
+        const info: DbConnectionInfo = {
+            dbConnection,
+            isDbConnectionClosing: false
         };
-        dbConnectionSource$.next(dbConnection);
+        dbConnectionSource$.next(info);
         closeDbTimer$.next(0);
         spyOn(dbConnectionSource$, "next").and.callThrough();
         await effect.pipe(first()).toPromise();
-        expect(dbConnectionSource$.next).toHaveBeenCalledWith(createClosingDbConnectionInfo(dbConnection));
+        expect(dbConnectionSource$.next).toHaveBeenCalledWith(createClosingDbConnectionInfo(info.dbConnection));
 
     });
 
