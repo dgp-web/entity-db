@@ -1,29 +1,28 @@
 import { CompositeEntityActionPayload } from "entity-store/src/models";
-import { concatMap, filter, switchMap } from "rxjs/operators";
-import { BehaviorSubject, of, Subject, timer } from "rxjs";
+import { concatMap } from "rxjs/operators";
 import {
     createCloseDbTimer,
+    createDbConnectionSource,
+    createRequestScheduler,
     dispatch$,
+    finalizeRequest$,
     get$,
     initialize$,
     processRequest$,
+    registerCloseTimer,
     runMigrations$,
+    startRequest$,
     tryPush
 } from "./functions";
 import {
     CompositeEntityQuery,
     CompositeEntityQueryResult,
-    DbConnectionInfo,
     EntityDb,
     EntityPouchDbPayload,
-    MigrationEntities,
-    ScheduledRequest
+    MigrationEntities
 } from "./models";
 import { Many, Mutable } from "data-modeling";
 import { entityPouchDbConfig } from "./constants";
-import { startRequest$ } from "./functions/start-request$.function";
-import { finalizeRequest$ } from "./functions/finalize-request$.function";
-import { ofNull } from "./functions/of-null.function";
 
 export function createEntityPouchDb<TEntityTypeMap extends MigrationEntities>(
     payload: EntityPouchDbPayload<TEntityTypeMap>,
@@ -35,48 +34,18 @@ export function createEntityPouchDb<TEntityTypeMap extends MigrationEntities>(
     tryPush(entityTypes, "migrationInfo");
     const migrations = payload.migrations ? payload.migrations : [];
 
-    const currentDbInstance$ = new BehaviorSubject<DbConnectionInfo>(null);
-
+    /**
+     * Setup utilities
+     */
+    const dbConnectionSource$ = createDbConnectionSource();
     const closeDbTimer$ = createCloseDbTimer();
+    const requestScheduler$ = createRequestScheduler();
 
-    if (typeof dbRef === "function") {
-        /**
-         * Register close timer
-         */
-        closeDbTimer$.pipe(
-            switchMap(period => {
-                if (period === null) return ofNull();
-                return timer(period);
-            }),
-            filter(x => x !== null),
-            switchMap(() => {
-                if (!currentDbInstance$.value || !currentDbInstance$.value.dbConnection) return ofNull();
-
-                /**
-                 * Mark DB as closing
-                 */
-                currentDbInstance$.next({
-                    dbConnection: currentDbInstance$.value.dbConnection,
-                    isDbConnectionClosing: true
-                });
-                return currentDbInstance$.value.dbConnection.close().then(() => {
-                    /**
-                     * Mark DB as closed and removed
-                     */
-                    currentDbInstance$.next({
-                        dbConnection: null,
-                        isDbConnectionClosing: false
-                    })
-                });
-            })
-        ).subscribe();
-    }
-
-    const requestScheduler$ = new Subject<ScheduledRequest>();
+    if (typeof dbRef === "function") registerCloseTimer({closeDbTimer$, dbConnectionSource$});
 
     requestScheduler$.pipe(concatMap(x => {
 
-        return startRequest$({dbRef, closeDbTimer$, currentDbInstance$})
+        return startRequest$({dbRef, closeDbTimer$, currentDbInstance$: dbConnectionSource$})
             .then(dbConnection => processRequest$({
                 dbConnection,
                 request$: x.request$(dbConnection),
