@@ -1,7 +1,15 @@
 import { CompositeEntityActionPayload } from "entity-store/src/models";
-import { concatMap, filter, first, map, switchMap } from "rxjs/operators";
+import { concatMap, filter, switchMap } from "rxjs/operators";
 import { BehaviorSubject, of, Subject, timer } from "rxjs";
-import { dispatch$, get$, initialize$, processRequest$, resolvePouchDbDatabase, runMigrations$ } from "./functions";
+import {
+    createCloseDbTimer,
+    dispatch$,
+    get$,
+    initialize$,
+    processRequest$,
+    runMigrations$,
+    tryPush
+} from "./functions";
 import {
     CompositeEntityQuery,
     CompositeEntityQueryResult,
@@ -12,8 +20,10 @@ import {
     ScheduledRequest
 } from "./models";
 import { Many, Mutable } from "data-modeling";
-import { isDbConnectionOpen } from "./functions/is-db-connection-open.function";
-import { entityPouchDbConfig } from "./constants/entity-pouch-db-config.constant";
+import { entityPouchDbConfig } from "./constants";
+import { startRequest$ } from "./functions/start-request$.function";
+import { finalizeRequest$ } from "./functions/finalize-request$.function";
+import { ofNull } from "./functions/of-null.function";
 
 export function createEntityPouchDb<TEntityTypeMap extends MigrationEntities>(
     payload: EntityPouchDbPayload<TEntityTypeMap>,
@@ -22,26 +32,25 @@ export function createEntityPouchDb<TEntityTypeMap extends MigrationEntities>(
 
     const dbRef = payload.dbRef;
     const entityTypes = payload.entityTypes as Mutable<Many<string>>;
-    if (!entityTypes.includes("migrationInfo")) {
-        entityTypes.push("migrationInfo");
-    }
+    tryPush(entityTypes, "migrationInfo");
     const migrations = payload.migrations ? payload.migrations : [];
-
 
     const currentDbInstance$ = new BehaviorSubject<DbConnectionInfo>(null);
 
-    const closeDbTimer$ = new Subject<number>();
+    const closeDbTimer$ = createCloseDbTimer();
 
     if (typeof dbRef === "function") {
+        /**
+         * Register close timer
+         */
         closeDbTimer$.pipe(
             switchMap(period => {
-                if (period === null) return of(null);
-
+                if (period === null) return ofNull();
                 return timer(period);
             }),
             filter(x => x !== null),
             switchMap(() => {
-                if (!currentDbInstance$.value || !currentDbInstance$.value.dbConnection) return of(null);
+                if (!currentDbInstance$.value || !currentDbInstance$.value.dbConnection) return ofNull();
 
                 /**
                  * Mark DB as closing
@@ -63,54 +72,18 @@ export function createEntityPouchDb<TEntityTypeMap extends MigrationEntities>(
         ).subscribe();
     }
 
-    function startRequest$(): Promise<PouchDB.Database> {
-
-        if (typeof dbRef === "object") return Promise.resolve(dbRef);
-
-        const currentValue = currentDbInstance$.value;
-
-        /**
-         * Create a new db if none is existing but do nothing if we
-         * are still closing
-         */
-        if (!currentValue || !currentValue.dbConnection) {
-            currentDbInstance$.next({
-                dbConnection: resolvePouchDbDatabase(dbRef),
-                isDbConnectionClosing: false
-            });
-        }
-        /**
-         * Reset the closing timer
-         */
-        closeDbTimer$.next(null);
-
-        return currentDbInstance$.pipe(
-            /**
-             * Only pass through new values if we have a db
-             * that is not closing
-             */
-            filter(isDbConnectionOpen),
-            map(x => x.dbConnection),
-            first()
-        ).toPromise();
-
-    }
-
-    function finalizeRequest$(): Promise<void> {
-        closeDbTimer$.next(config.keepIdleConnectionAlivePeriod);
-        return Promise.resolve();
-    }
-
     const requestScheduler$ = new Subject<ScheduledRequest>();
 
     requestScheduler$.pipe(concatMap(x => {
 
-        return startRequest$().then(dbConnection => processRequest$({
-            dbConnection,
-            request$: x.request$(dbConnection),
-            publishResult: x.publishResult,
-            publishError: x.publishError
-        })).then(() => finalizeRequest$())
+        return startRequest$({dbRef, closeDbTimer$, currentDbInstance$})
+            .then(dbConnection => processRequest$({
+                dbConnection,
+                request$: x.request$(dbConnection),
+                publishResult: x.publishResult,
+                publishError: x.publishError
+            }))
+            .then(() => finalizeRequest$({closeDbTimer$}, config))
             /**
              * We catch all errors in the chain to ensure that scheduler
              * cannot stop.

@@ -1,3 +1,4 @@
+export * from "./close-db-timer.model";
 export * from "./composite-entity-query.model";
 export * from "./composite-entity-query-result.model";
 export * from "./db-connection-info.model";
