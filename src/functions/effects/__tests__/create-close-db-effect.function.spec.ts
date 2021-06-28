@@ -1,28 +1,13 @@
-import { createCloseDbEffect } from "../create-close-db-effect.function";
-import { Observable, ReplaySubject } from "rxjs";
-import { DbConnectionInfo, DbConnectionSource } from "../../../models";
-import { createDbConnectionSource } from "../../factories/create-db-connection-source.function";
-import { first } from "rxjs/operators";
-import { createClosingDbConnectionInfo } from "../../factories/create-closing-db-connection-info.function";
+import {createCloseDbEffect} from "../create-close-db-effect.function";
+import {Observable} from "rxjs";
+import {DbConnectionInfo, DbConnectionSource} from "../../../models";
+import {createDbConnectionSource} from "../../factories/create-db-connection-source.function";
+import {first} from "rxjs/operators";
+import {createClosingDbConnectionInfo} from "../../factories/create-closing-db-connection-info.function";
 import * as PouchDB from "pouchdb";
-
-const uuidv4 = require("uuid/v4");
-
-export function createGuid() {
-    return uuidv4();
-}
-
-export type TestCloseDbTimer = ReplaySubject<number>;
-
-export function createTestCloseDbTimer(): TestCloseDbTimer {
-    return new ReplaySubject<number>(1);
-}
-
-PouchDB.plugin(require("pouchdb-adapter-memory"));
-
-export function createTestPouchDb(): PouchDB.Database {
-    return new PouchDB(createGuid(), {adapter: "memory"});
-}
+import {createTestPouchDb} from "../../../__tests__/factories/create-test-pouch-db.function";
+import {TestCloseDbTimer} from "../../../__tests__/models/test-close-db-timer.model";
+import {createTestCloseDbTimer} from "../../../__tests__/factories/create-test-close-db-timer.function";
 
 describe("createCloseDbEffect", () => {
 
@@ -63,7 +48,6 @@ describe("createCloseDbEffect", () => {
         spyOn(dbConnectionSource$, "next").and.callThrough();
         await effect.pipe(first()).toPromise();
         expect(dbConnectionSource$.next).toHaveBeenCalledWith(createClosingDbConnectionInfo(info.dbConnection));
-
     });
 
 
