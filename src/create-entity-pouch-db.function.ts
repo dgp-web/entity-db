@@ -5,6 +5,7 @@ import { dispatch$, get$, initialize$, processRequest$, runMigrations$ } from ".
 import {
     CompositeEntityQuery,
     CompositeEntityQueryResult,
+    DbConnectionInfo,
     EntityDb,
     Migration,
     MigrationEntities,
@@ -12,6 +13,7 @@ import {
     ScheduledRequest
 } from "./models";
 import { Many, Mutable } from "data-modeling";
+import { isDbConnectionOpen } from "./functions/is-db-connection-open.function";
 
 export function createEntityPouchDb<TEntityTypeMap extends MigrationEntities>(
     payload: {
@@ -36,10 +38,7 @@ export function createEntityPouchDb<TEntityTypeMap extends MigrationEntities>(
         else if (typeof dbRef === "function") return dbRef();
     }
 
-    const currentDbInstance$ = new BehaviorSubject<{
-        readonly dbConnection: PouchDB.Database;
-        readonly isDbConnectionClosing: boolean;
-    }>(null);
+    const currentDbInstance$ = new BehaviorSubject<DbConnectionInfo>(null);
 
     const closeDbTimer$ = new Subject<number>();
 
@@ -94,17 +93,13 @@ export function createEntityPouchDb<TEntityTypeMap extends MigrationEntities>(
          * Reset the closing timer
          */
         closeDbTimer$.next(null);
-
+        
         return currentDbInstance$.pipe(
             /**
              * Only pass through new values if we have a db
              * that is not closing
              */
-            filter(x => {
-                return x !== null
-                    && x.dbConnection !== null
-                    && x.isDbConnectionClosing !== true
-            }),
+            filter(isDbConnectionOpen),
             map(x => x.dbConnection),
             first()
         ).toPromise();
