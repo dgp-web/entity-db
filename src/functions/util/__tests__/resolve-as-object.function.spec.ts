@@ -11,9 +11,7 @@ describe("resolveAsObject", () => {
     });
 
     it(`and resolve functions`, () => {
-        const payload: ObjectOrFactory<{}> = function () {
-            return {};
-        };
+        const payload: ObjectOrFactory<{}> = () => ({});
         const result = resolveAsObject(payload);
         const expectedResult = {};
         expect(result).toEqual(expectedResult);
