@@ -11,7 +11,7 @@
     "copy-assets-to-dist": "cpx README.md dist && cpx LICENSE dist",
     "prebuild": "npm run clean-dist && npm run copy-assets-to-dist",
     "build": "tsc --project tsconfig.dist.json",
-    "test": "karma start"
+    "test": "jest --config=jest.config.js"
   },
   "dependencies": {
     "data-modeling": "^2.0.0",
@@ -30,17 +30,12 @@
     "istanbul-instrumenter-loader": "^3.0.1",
     "jasmine-core": "~3.5.0",
     "js.clone": "^0.0.3",
-    "karma": "^4.0.0",
-    "karma-cli": "~2.0.0",
-    "karma-jasmine": "~3.1.0",
-    "karma-chrome-launcher": "~3.1.0",
-    "karma-mocha-reporter": "^2.2.5",
-    "karma-typescript": "^4.0.0",
-    "karma-webpack": "^4.0.2",
+    "jest": "^26.4.2",
+    "pouchdb-adapter-memory": "^7.1.1",
     "puppeteer": "^2.0.0",
     "rimraf": "^3.0.0",
+    "supertest": "^4.0.2",
     "typescript": "^4",
-    "webpack": "^4.41.5",
-    "webpack-cli": "^3.1.2"
+    "ts-jest": "^26.4.0"
   }
 }
