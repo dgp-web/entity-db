@@ -14,6 +14,7 @@ import {
 } from "./models";
 import { Many, Mutable } from "data-modeling";
 import { isDbConnectionOpen } from "./functions/is-db-connection-open.function";
+import { entityDbConfig } from "./constants/entity-db-config.constant";
 
 export function createEntityPouchDb<TEntityTypeMap extends MigrationEntities>(
     payload: {
@@ -21,9 +22,7 @@ export function createEntityPouchDb<TEntityTypeMap extends MigrationEntities>(
         readonly dbRef: PouchDB.Database | PouchDbFactory,
         readonly migrations?: ReadonlyArray<Migration<any, any>>
     },
-    config = {
-        keepIdleConnectionAlivePeriod: 5000
-    }
+    config = entityDbConfig
 ): EntityDb<TEntityTypeMap> {
 
     const dbRef = payload.dbRef;
@@ -93,7 +92,7 @@ export function createEntityPouchDb<TEntityTypeMap extends MigrationEntities>(
          * Reset the closing timer
          */
         closeDbTimer$.next(null);
-        
+
         return currentDbInstance$.pipe(
             /**
              * Only pass through new values if we have a db
