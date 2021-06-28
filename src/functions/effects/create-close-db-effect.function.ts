@@ -1,6 +1,6 @@
 import { Subscription, timer } from "rxjs";
 import { filter, switchMap } from "rxjs/operators";
-import { createDbConnectionInfo } from "../factories/create-db-connection-info.function";
+import { createClosingDbConnectionInfo } from "../factories/create-closing-db-connection-info.function";
 import { hasOpenDbConnection } from "../db-connection/has-open-db-connection.function";
 import { markDbConnectionAsClosed } from "../db-connection/mark-db-connection-as-closed.function";
 import { ofNull } from "../util/of-null.function";
@@ -26,10 +26,7 @@ export function createCloseDbEffect(payload: CloseDbEffectPayload): Subscription
         switchMap(() => {
             if (!hasOpenDbConnection(dbConnectionSource$.value)) return ofNull();
 
-            /**
-             * Mark DB as closing
-             */
-            dbConnectionSource$.next(createDbConnectionInfo(dbConnectionSource$.value.dbConnection));
+            dbConnectionSource$.next(createClosingDbConnectionInfo(dbConnectionSource$.value.dbConnection));
             return dbConnectionSource$.value.dbConnection.close().then(() => markDbConnectionAsClosed({
                 dbConnectionSource$
             }));
