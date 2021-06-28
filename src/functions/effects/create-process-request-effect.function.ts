@@ -1,10 +1,10 @@
-import { CloseDbTimer, DbConnectionSource, PouchDbRef, WithRequestScheduler } from "../../models";
-import { entityPouchDbConfig } from "../../constants";
-import { Subscription } from "rxjs";
-import { concatMap } from "rxjs/operators";
-import { startRequest$ } from "../request-processing/start-request$.function";
-import { processRequest$ } from "../request-processing/process-request$";
-import { finalizeRequest$ } from "../request-processing/finalize-request$.function";
+import {CloseDbTimer, DbConnectionSource, PouchDbRef, WithRequestScheduler} from "../../models";
+import {entityPouchDbConfig} from "../../constants";
+import {Observable} from "rxjs";
+import {concatMap} from "rxjs/operators";
+import {startRequest$} from "../request-processing/start-request$.function";
+import {processRequest$} from "../request-processing/process-request$";
+import {finalizeRequest$} from "../request-processing/finalize-request$.function";
 
 export interface ProcessRequestEffectPayload extends WithRequestScheduler {
     readonly dbRef: PouchDbRef;
@@ -15,7 +15,7 @@ export interface ProcessRequestEffectPayload extends WithRequestScheduler {
 export function createProcessRequestEffect(
     payload: ProcessRequestEffectPayload,
     config = entityPouchDbConfig
-): Subscription {
+): Observable<void> {
 
     const dbRef = payload.dbRef;
     const dbConnectionSource$ = payload.dbConnectionSource$;
@@ -40,6 +40,6 @@ export function createProcessRequestEffect(
                 console.error("DB error: ", e);
             });
 
-    })).subscribe();
+    }));
 
 }

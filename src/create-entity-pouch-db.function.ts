@@ -25,9 +25,9 @@ export function createEntityPouchDb<TEntityTypeMap extends MigrationEntities>(
 
     // TODO: There is not error handler here!!!
     if (typeof dbRef === "function") createCloseDbEffect({closeDbTimer$, dbConnectionSource$}).subscribe();
-    
+
     // TODO: There is not error handler here!!!
-    createProcessRequestEffect({closeDbTimer$, dbConnectionSource$, requestScheduler$, dbRef}, config);
+    createProcessRequestEffect({closeDbTimer$, dbConnectionSource$, requestScheduler$, dbRef}, config).subscribe();
 
     return createDbWithRequestScheduler({requestScheduler$, migrations, entityTypes});
 }
