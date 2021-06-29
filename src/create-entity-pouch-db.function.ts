@@ -23,11 +23,17 @@ export function createEntityPouchDb<TEntityTypeMap extends MigrationEntities>(
     const closeDbTimer$ = createCloseDbTimer();
     const requestScheduler$ = createRequestScheduler();
 
-    // TODO: There is not error handler here!!!
-    if (typeof dbRef === "function") createCloseDbEffect({closeDbTimer$, dbConnectionSource$}).subscribe();
+    if (typeof dbRef === "function") {
+        createCloseDbEffect({closeDbTimer$, dbConnectionSource$})
+            .subscribe(() => {}, e => {
+                console.error("Critical DB closing error: ", e);
+            });
+    }
 
-    // TODO: There is not error handler here!!!
-    createProcessRequestEffect({closeDbTimer$, dbConnectionSource$, requestScheduler$, dbRef}, config).subscribe();
+    createProcessRequestEffect({closeDbTimer$, dbConnectionSource$, requestScheduler$, dbRef}, config)
+        .subscribe(() => {}, e => {
+            console.error("Critical DB processing error: ", e);
+        });
 
     return createDbWithRequestScheduler({requestScheduler$, migrations, entityTypes});
 }
