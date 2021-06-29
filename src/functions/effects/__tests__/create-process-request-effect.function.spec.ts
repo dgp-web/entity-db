@@ -13,6 +13,7 @@ import {
 import { createTestRequestScheduler } from "../../../__tests__/factories/create-test-request-scheduler.function";
 import { TestRequestScheduler } from "../../../__tests__/models/test-request-scheduler.model";
 import { first } from "rxjs/operators";
+import { ProcessRequestPayload } from "../../request-processing/process-request$";
 
 export const testRequest: ScheduledRequest = {
     request$: dbc => Promise.resolve(),
@@ -64,6 +65,17 @@ describe("createProcessRequestEffect", () => {
         requestScheduler$.next(testRequest);
         await effect.pipe(first()).toPromise();
         expect(processRequestEffectConfig.startRequest$).toHaveBeenCalledWith(payload);
+    });
+
+    it(`and then calls processRequest$ with the passed payload`, async () => {
+        spyOn(processRequestEffectConfig, "processRequest$").and.callThrough();
+        requestScheduler$.next(testRequest);
+        await effect.pipe(first()).toPromise();
+        expect(processRequestEffectConfig.processRequest$).toHaveBeenCalledWith({
+            publishError: testRequest.publishError,
+            publishResult: testRequest.publishResult,
+            request$: testRequest.request$(dbConnection)
+        } as ProcessRequestPayload<any>);
     });
 
 });

@@ -28,7 +28,6 @@ export function createProcessRequestEffect(
 
         return execConfig.startRequest$(payload)
             .then(dbConnection => execConfig.processRequest$({
-                dbConnection,
                 request$: x.request$(dbConnection),
                 publishResult: x.publishResult,
                 publishError: x.publishError

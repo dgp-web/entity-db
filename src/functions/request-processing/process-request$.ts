@@ -3,7 +3,6 @@ import { defaultIfEmpty, first, tap } from "rxjs/operators";
 
 export interface ProcessRequestPayload<T> {
     readonly request$: Promise<T> | Observable<T>;
-    readonly dbConnection: PouchDB.Database;
     readonly publishResult: (payload?: any) => void;
     readonly publishError: (payload?: any) => void;
 }
