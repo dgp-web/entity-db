@@ -1,6 +1,6 @@
 import { Observable } from "rxjs";
 import { TestCloseDbTimer } from "../../../__tests__/models/test-close-db-timer.model";
-import { DbConnectionSource, PouchDbRef, ScheduledRequest } from "../../../models";
+import { DbConnectionSource, PouchDbRef } from "../../../models";
 import * as PouchDB from "pouchdb";
 import { createTestPouchDb } from "../../../__tests__/factories/create-test-pouch-db.function";
 import { createTestCloseDbTimer } from "../../../__tests__/factories/create-test-close-db-timer.function";
@@ -14,14 +14,10 @@ import { createTestRequestScheduler } from "../../../__tests__/factories/create-
 import { TestRequestScheduler } from "../../../__tests__/models/test-request-scheduler.model";
 import { first } from "rxjs/operators";
 import { ProcessRequestPayload } from "../../request-processing/process-request$";
+import { entityPouchDbConfig } from "../../../constants";
+import { testError } from "../../../__tests__/constants/test-error.constant";
+import { testRequest } from "../../../__tests__/constants/test-request.constant";
 
-export const testRequest: ScheduledRequest = {
-    request$: dbc => Promise.resolve(),
-    publishResult: payload => {
-    },
-    publishError: payload => {
-    }
-};
 
 describe("createProcessRequestEffect", () => {
 
@@ -45,6 +41,7 @@ describe("createProcessRequestEffect", () => {
         payload = {requestScheduler$, closeDbTimer$, dbConnectionSource$, dbRef};
 
         effect = createProcessRequestEffect(payload);
+        requestScheduler$.next(testRequest);
     });
 
     it(`should create`, () => {
@@ -56,26 +53,50 @@ describe("createProcessRequestEffect", () => {
     });
 
     it(`that reacts when a request is scheduled is passed`, async () => {
-        requestScheduler$.next(testRequest);
         await effect.pipe(first()).toPromise();
     });
 
     it(`and calls startRequest$ with the passed payload`, async () => {
         spyOn(processRequestEffectConfig, "startRequest$").and.callThrough();
-        requestScheduler$.next(testRequest);
         await effect.pipe(first()).toPromise();
         expect(processRequestEffectConfig.startRequest$).toHaveBeenCalledWith(payload);
     });
 
     it(`and then calls processRequest$ with the passed payload`, async () => {
         spyOn(processRequestEffectConfig, "processRequest$").and.callThrough();
-        requestScheduler$.next(testRequest);
         await effect.pipe(first()).toPromise();
         expect(processRequestEffectConfig.processRequest$).toHaveBeenCalledWith({
             publishError: testRequest.publishError,
             publishResult: testRequest.publishResult,
             request$: testRequest.request$(dbConnection)
         } as ProcessRequestPayload<any>);
+    });
+
+    it(`and then calls finalizeRequest$ with the passed payload`, async () => {
+        spyOn(processRequestEffectConfig, "finalizeRequest$").and.callThrough();
+        await effect.pipe(first()).toPromise();
+        expect(processRequestEffectConfig.finalizeRequest$).toHaveBeenCalledWith(payload, entityPouchDbConfig);
+    });
+
+    it(`and calls logError if startRequest$ throw an error`, async () => {
+        spyOn(processRequestEffectConfig, "startRequest$").and.returnValue(Promise.reject(testError));
+        spyOn(processRequestEffectConfig, "logError");
+        await effect.pipe(first()).toPromise();
+        expect(processRequestEffectConfig.logError).toHaveBeenCalledWith(testError);
+    });
+
+    it(`or if processRequest$ throw an error`, async () => {
+        spyOn(processRequestEffectConfig, "processRequest$").and.returnValue(Promise.reject(testError));
+        spyOn(processRequestEffectConfig, "logError");
+        await effect.pipe(first()).toPromise();
+        expect(processRequestEffectConfig.logError).toHaveBeenCalledWith(testError);
+    });
+
+    it(`or if finalizeRequest$ throw an error`, async () => {
+        spyOn(processRequestEffectConfig, "finalizeRequest$").and.returnValue(Promise.reject(testError));
+        spyOn(processRequestEffectConfig, "logError");
+        await effect.pipe(first()).toPromise();
+        expect(processRequestEffectConfig.logError).toHaveBeenCalledWith(testError);
     });
 
 });

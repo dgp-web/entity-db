@@ -12,10 +12,15 @@ export interface ProcessRequestEffectPayload extends WithRequestScheduler, WithD
     readonly dbRef: PouchDbRef;
 }
 
+export function logError(e: Error) {
+    console.error("DB error: ", e);
+}
+
 export const processRequestEffectConfig = {
     startRequest$,
     processRequest$,
-    finalizeRequest$
+    finalizeRequest$,
+    logError
 };
 
 export function createProcessRequestEffect(
@@ -38,7 +43,7 @@ export function createProcessRequestEffect(
              * cannot stop.
              */
             .catch(e => {
-                console.error("DB error: ", e);
+                execConfig.logError(e);
             });
 
     }));
