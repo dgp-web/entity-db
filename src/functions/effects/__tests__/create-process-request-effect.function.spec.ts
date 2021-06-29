@@ -18,7 +18,6 @@ import { entityPouchDbConfig } from "../../../constants";
 import { testError } from "../../../__tests__/constants/test-error.constant";
 import { testRequest } from "../../../__tests__/constants/test-request.constant";
 
-
 describe("createProcessRequestEffect", () => {
 
     let closeDbTimer$: TestCloseDbTimer;

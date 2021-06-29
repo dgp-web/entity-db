@@ -8,6 +8,7 @@ import { createCloseDbTimer } from "./functions/factories/create-close-db-timer.
 import { createDbConnectionSource } from "./functions/factories/create-db-connection-source.function";
 import { createRequestScheduler } from "./functions/factories/create-request-scheduler.function";
 import { tryPush } from "./functions/util/try-push.function";
+import { noopHandler } from "./functions/util/noop-handler.function";
 
 export function createEntityPouchDb<TEntityTypeMap extends MigrationEntities>(
     payload: EntityPouchDbPayload<TEntityTypeMap>,
@@ -25,15 +26,19 @@ export function createEntityPouchDb<TEntityTypeMap extends MigrationEntities>(
 
     if (typeof dbRef === "function") {
         createCloseDbEffect({closeDbTimer$, dbConnectionSource$})
-            .subscribe(() => {}, e => {
-                console.error("Critical DB closing error: ", e);
-            });
+            .subscribe(
+                noopHandler,
+                e => console.error("Critical DB close effect error: ", e),
+                () => console.error("Critical DB close effect completion")
+            );
     }
 
     createProcessRequestEffect({closeDbTimer$, dbConnectionSource$, requestScheduler$, dbRef}, config)
-        .subscribe(() => {}, e => {
-            console.error("Critical DB processing error: ", e);
-        });
+        .subscribe(
+            noopHandler,
+            e => console.error("Critical DB processing effect error: ", e),
+            () => console.error("Critical DB processing effect completion")
+        );
 
     return createDbWithRequestScheduler({requestScheduler$, migrations, entityTypes});
 }
