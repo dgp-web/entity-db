@@ -1,48 +1,44 @@
-import { DbConnectionInfo, PouchDbRef } from "../../models";
-import { BehaviorSubject, Subject } from "rxjs";
+import { PouchDbRef } from "../../models";
 import { resolvePouchDbDatabase } from "../util/resolve-pouch-db-database.function";
-import { filter, first, map } from "rxjs/operators";
-import { hasOpenDbConnection } from "../db-connection/has-open-db-connection.function";
+import { filter, first } from "rxjs/operators";
+import { WithDbConnectionSource } from "../../models/with-db-connection-source.model";
+import { WithCloseDbTimer } from "../../models/with-close-db-timer.model";
 
-export interface StartRequest$Payload {
+export interface StartRequest$Payload extends WithDbConnectionSource, WithCloseDbTimer {
     readonly dbRef: PouchDbRef;
-    readonly dbConnectionSource$: BehaviorSubject<DbConnectionInfo>;
-    readonly closeDbTimer$: Subject<number>;
 }
 
-export function startRequest$(payload: StartRequest$Payload): Promise<PouchDB.Database> {
+export async function startRequest$(payload: StartRequest$Payload): Promise<PouchDB.Database> {
 
     const dbRef = payload.dbRef;
-    const currentDbInstance$ = payload.dbConnectionSource$;
+    const dbConnectionSource$ = payload.dbConnectionSource$;
     const closeDbTimer$ = payload.closeDbTimer$;
 
     if (typeof dbRef === "object") return Promise.resolve(dbRef);
 
-    const currentValue = currentDbInstance$.value;
+    let currentValue = dbConnectionSource$.value;
+
+    if (currentValue?.isDbConnectionClosing) {
+        currentValue = await dbConnectionSource$.pipe(
+            filter(x => !x.isDbConnectionClosing),
+            first()
+        ).toPromise();
+    }
 
     /**
-     * Create a new db if none is existing but do nothing if we
-     * are still closing
+     * Create a new db if none is existing
      */
     if (!currentValue || !currentValue.dbConnection) {
-        currentDbInstance$.next({
+        currentValue = {
             dbConnection: resolvePouchDbDatabase(dbRef),
             isDbConnectionClosing: false
-        });
+        };
+        dbConnectionSource$.next(currentValue);
     }
     /**
      * Reset the closing timer
      */
     closeDbTimer$.next(null);
-
-    return currentDbInstance$.pipe(
-        /**
-         * Only pass through new values if we have a db
-         * that is not closing
-         */
-        filter(hasOpenDbConnection),
-        map(x => x.dbConnection),
-        first()
-    ).toPromise();
+    return currentValue.dbConnection;
 
 }
