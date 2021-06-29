@@ -1,1 +1,3 @@
-export type EntityQuery<TEntity> = "all" | ReadonlyArray<string>;
+import { Many } from "data-modeling";
+
+export type EntityQuery<TEntity> = "all" | Many<string>;

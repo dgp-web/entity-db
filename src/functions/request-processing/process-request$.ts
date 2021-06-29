@@ -34,10 +34,6 @@ export function processRequest$<T>(payload: ProcessRequestPayload<T>): Promise<T
             e => payload.publishError(e),
             () => payload.publishResult()
         ),
-        /* switchMap(() => payload.dbConnection.close()),
-         catchError((err, caught) => {
-             return payload.dbConnection.close().then(() => empty());
-         }),*/
         defaultIfEmpty(null)
     );
 

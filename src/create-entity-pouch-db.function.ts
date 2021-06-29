@@ -1,149 +1,39 @@
-import { EntityTypeMap } from "entity-store";
-import { CompositeEntityActionPayload } from "entity-store/src/models";
-import { concatMap, filter, first, map, switchMap } from "rxjs/operators";
-import { BehaviorSubject, of, Subject, timer } from "rxjs";
-import { dispatch$, get$, initialize$, processRequest$ } from "./functions";
-import { CompositeEntityQuery, CompositeEntityQueryResult, EntityDb, PouchDbFactory, ScheduledRequest } from "./models";
+import { EntityDb, EntityPouchDbPayload, MigrationEntities } from "./models";
+import { Many, Mutable } from "data-modeling";
+import { entityPouchDbConfig } from "./constants";
+import { createProcessRequestEffect } from "./functions/effects/create-process-request-effect.function";
+import { createCloseDbEffect } from "./functions/effects/create-close-db-effect.function";
+import { createDbWithRequestScheduler } from "./functions/factories/create-db-with-request-scheduler.function";
+import { createCloseDbTimer } from "./functions/factories/create-close-db-timer.function";
+import { createDbConnectionSource } from "./functions/factories/create-db-connection-source.function";
+import { createRequestScheduler } from "./functions/factories/create-request-scheduler.function";
+import { tryPush } from "./functions/util/try-push.function";
 
-export function createEntityPouchDb<TEntityTypeMap extends EntityTypeMap>(
-    entityTypes: ReadonlyArray<keyof TEntityTypeMap>,
-    dbRef: PouchDB.Database | PouchDbFactory,
-    config = {
-        keepIdleConnectionAlivePeriod: 5000
-    }
+export function createEntityPouchDb<TEntityTypeMap extends MigrationEntities>(
+    payload: EntityPouchDbPayload<TEntityTypeMap>,
+    config = entityPouchDbConfig
 ): EntityDb<TEntityTypeMap> {
 
-    function getDbConnection() {
-        if (typeof dbRef === "object") return dbRef as PouchDB.Database;
-        else if (typeof dbRef === "function") return dbRef();
-    }
+    const dbRef = payload.dbRef;
+    const entityTypes = payload.entityTypes as Mutable<Many<string>>;
+    tryPush(entityTypes, "migrationInfo");
+    const migrations = payload.migrations ? payload.migrations : [];
 
-    const currentDbInstance$ = new BehaviorSubject<{
-        readonly dbConnection: PouchDB.Database;
-        readonly isDbConnectionClosing: boolean;
-    }>(null);
-
-    const closeDbTimer$ = new Subject<number>();
+    const dbConnectionSource$ = createDbConnectionSource();
+    const closeDbTimer$ = createCloseDbTimer();
+    const requestScheduler$ = createRequestScheduler();
 
     if (typeof dbRef === "function") {
-        closeDbTimer$.pipe(
-            switchMap(period => {
-                if (period === null) return of(null);
-
-                return timer(period);
-            }),
-            filter(x => x !== null),
-            switchMap(() => {
-                if (!currentDbInstance$.value || !currentDbInstance$.value.dbConnection) return of(null);
-
-                /**
-                 * Mark DB as closing
-                 */
-                currentDbInstance$.next({
-                    dbConnection: currentDbInstance$.value.dbConnection,
-                    isDbConnectionClosing: true
-                });
-                return currentDbInstance$.value.dbConnection.close().then(() => {
-                    /**
-                     * Mark DB as closed and removed
-                     */
-                    currentDbInstance$.next({
-                        dbConnection: null,
-                        isDbConnectionClosing: false
-                    })
-                });
-            })
-        ).subscribe();
-    }
-
-    function startRequest$(): Promise<PouchDB.Database> {
-
-        if (typeof dbRef === "object") return Promise.resolve(dbRef);
-
-        const currentValue = currentDbInstance$.value;
-
-        /**
-         * Create a new db if none is existing but do nothing if we
-         * are still closing
-         */
-        if (!currentValue || !currentValue.dbConnection) {
-            currentDbInstance$.next({
-                dbConnection: getDbConnection(),
-                isDbConnectionClosing: false
+        createCloseDbEffect({closeDbTimer$, dbConnectionSource$})
+            .subscribe(() => {}, e => {
+                console.error("Critical DB closing error: ", e);
             });
-        }
-        /**
-         * Reset the closing timer
-         */
-        closeDbTimer$.next(null);
-
-        return currentDbInstance$.pipe(
-            /**
-             * Only pass through new values if we have a db
-             * that is not closing
-             */
-            filter(x => {
-                return x !== null
-                    && x.dbConnection !== null
-                    && x.isDbConnectionClosing !== true
-            }),
-            map(x => x.dbConnection),
-            first()
-        ).toPromise();
-
     }
 
-    function finalizeRequest$(): Promise<void> {
-        closeDbTimer$.next(config.keepIdleConnectionAlivePeriod);
-        return Promise.resolve();
-    }
+    createProcessRequestEffect({closeDbTimer$, dbConnectionSource$, requestScheduler$, dbRef}, config)
+        .subscribe(() => {}, e => {
+            console.error("Critical DB processing error: ", e);
+        });
 
-    const requestScheduler$ = new Subject<ScheduledRequest>();
-
-    requestScheduler$.pipe(concatMap(x => {
-
-        return startRequest$().then(dbConnection => processRequest$({
-            dbConnection,
-            request$: x.request$(dbConnection),
-            publishResult: x.publishResult,
-            publishError: x.publishError
-        })).then(() => finalizeRequest$())
-            /**
-             * We catch all errors in the chain to ensure that scheduler
-             * cannot stop.
-             */
-            .catch(e => {
-                console.error("DB error: ", e);
-            });
-
-    })).subscribe();
-
-    return {
-        get$: <TMappingResult>(
-            selection: CompositeEntityQuery<TEntityTypeMap>,
-            map?: (queryResult: CompositeEntityQueryResult<TEntityTypeMap>) => TMappingResult
-        ): Promise<CompositeEntityQueryResult<TEntityTypeMap> | TMappingResult> => {
-            return new Promise((resolve, reject) => requestScheduler$.next({
-                request$: dbConnection => get$(dbConnection, selection, map),
-                publishResult: resolve,
-                publishError: reject
-            }));
-        },
-
-        initialize$: () => {
-            return new Promise((resolve, reject) => requestScheduler$.next({
-                request$: dbConnection => initialize$(dbConnection, entityTypes as Array<string>),
-                publishResult: resolve,
-                publishError: reject
-            }))
-        },
-
-        dispatch$: (action: CompositeEntityActionPayload<TEntityTypeMap, null>) => {
-            return new Promise((resolve, reject) => requestScheduler$.next({
-                request$: dbConnection => dispatch$(dbConnection, action),
-                publishResult: resolve,
-                publishError: reject
-            }))
-        }
-    };
+    return createDbWithRequestScheduler({requestScheduler$, migrations, entityTypes});
 }

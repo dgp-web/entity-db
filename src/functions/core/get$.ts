@@ -1,6 +1,6 @@
 import {EntityTypeMap} from "entity-store";
 import * as _ from "lodash";
-import {CompositeEntityQuery, CompositeEntityQueryResult} from "../models";
+import {CompositeEntityQuery, CompositeEntityQueryResult} from "../../models";
 
 export async function get$<TEntityTypeMap extends EntityTypeMap, TMappingResult>(
     dbConnection: PouchDB.Database,

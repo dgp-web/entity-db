@@ -1,4 +1,4 @@
-import { EntityTypeMap } from "entity-store";
+import { EntityTypeMap } from "data-modeling";
 import { EntityQuery } from "./entity-query.model";
 
 export type CompositeEntityQuery<TEntityTypeMap extends EntityTypeMap> = {
