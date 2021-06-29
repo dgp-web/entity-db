@@ -12,26 +12,28 @@ export interface ProcessRequestEffectPayload extends WithRequestScheduler, WithD
     readonly dbRef: PouchDbRef;
 }
 
+export const processRequestEffectConfig = {
+    startRequest$,
+    processRequest$,
+    finalizeRequest$
+};
+
 export function createProcessRequestEffect(
     payload: ProcessRequestEffectPayload,
-    config = entityPouchDbConfig
+    config = entityPouchDbConfig,
+    execConfig = processRequestEffectConfig
 ): Observable<void> {
 
-    const dbRef = payload.dbRef;
-    const dbConnectionSource$ = payload.dbConnectionSource$;
-    const closeDbTimer$ = payload.closeDbTimer$;
-    const requestScheduler$ = payload.requestScheduler$;
+    return payload.requestScheduler$.pipe(concatMap(x => {
 
-    return requestScheduler$.pipe(concatMap(x => {
-
-        return startRequest$({dbRef, closeDbTimer$, currentDbInstance$: dbConnectionSource$})
-            .then(dbConnection => processRequest$({
+        return execConfig.startRequest$(payload)
+            .then(dbConnection => execConfig.processRequest$({
                 dbConnection,
                 request$: x.request$(dbConnection),
                 publishResult: x.publishResult,
                 publishError: x.publishError
             }))
-            .then(() => finalizeRequest$({closeDbTimer$}, config))
+            .then(() => execConfig.finalizeRequest$(payload, config))
             /**
              * We catch all errors in the chain to ensure that scheduler
              * cannot stop.

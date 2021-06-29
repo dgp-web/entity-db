@@ -6,14 +6,14 @@ import { hasOpenDbConnection } from "../db-connection/has-open-db-connection.fun
 
 export interface StartRequest$Payload {
     readonly dbRef: PouchDbRef;
-    readonly currentDbInstance$: BehaviorSubject<DbConnectionInfo>;
+    readonly dbConnectionSource$: BehaviorSubject<DbConnectionInfo>;
     readonly closeDbTimer$: Subject<number>;
 }
 
 export function startRequest$(payload: StartRequest$Payload): Promise<PouchDB.Database> {
 
     const dbRef = payload.dbRef;
-    const currentDbInstance$ = payload.currentDbInstance$;
+    const currentDbInstance$ = payload.dbConnectionSource$;
     const closeDbTimer$ = payload.closeDbTimer$;
 
     if (typeof dbRef === "object") return Promise.resolve(dbRef);
