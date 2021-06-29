@@ -1,15 +1,15 @@
-import {CloseDbTimer, DbConnectionSource, PouchDbRef, WithRequestScheduler} from "../../models";
-import {entityPouchDbConfig} from "../../constants";
-import {Observable} from "rxjs";
-import {concatMap} from "rxjs/operators";
-import {startRequest$} from "../request-processing/start-request$.function";
-import {processRequest$} from "../request-processing/process-request$";
-import {finalizeRequest$} from "../request-processing/finalize-request$.function";
+import { PouchDbRef, WithRequestScheduler } from "../../models";
+import { entityPouchDbConfig } from "../../constants";
+import { Observable } from "rxjs";
+import { concatMap } from "rxjs/operators";
+import { startRequest$ } from "../request-processing/start-request$.function";
+import { processRequest$ } from "../request-processing/process-request$";
+import { finalizeRequest$ } from "../request-processing/finalize-request$.function";
+import { WithDbConnectionSource } from "../../models/with-db-connection-source.model";
+import { WithCloseDbTimer } from "../../models/with-close-db-timer.model";
 
-export interface ProcessRequestEffectPayload extends WithRequestScheduler {
+export interface ProcessRequestEffectPayload extends WithRequestScheduler, WithDbConnectionSource, WithCloseDbTimer {
     readonly dbRef: PouchDbRef;
-    readonly dbConnectionSource$: DbConnectionSource;
-    readonly closeDbTimer$: CloseDbTimer;
 }
 
 export function createProcessRequestEffect(
