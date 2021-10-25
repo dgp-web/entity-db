@@ -6,5 +6,5 @@ import { PouchDbRef } from "./pouch-db-ref.model";
 export interface EntityPouchDbPayload<TEntityTypeMap extends MigrationEntities> {
     readonly entityTypes: Many<keyof TEntityTypeMap>,
     readonly dbRef: PouchDbRef,
-    readonly migrations?: Many<Migration<any, any>>
+    readonly migrations?: ReadonlyArray<Migration<any, any>>
 }

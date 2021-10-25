@@ -6,7 +6,7 @@ import { runMigrations$ } from "../core/run-migrations$.function";
 
 export interface CreateDbWithRequestSchedulerPayload extends WithRequestScheduler {
     readonly entityTypes: Many<string>;
-    readonly migrations: Many<Migration<any, any>>;
+    readonly migrations: ReadonlyArray<Migration<any, any>>;
 }
 
 export function createDbWithRequestScheduler<TEntityTypeMap extends MigrationEntities>(

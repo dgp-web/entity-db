@@ -8,7 +8,7 @@
   },
   "scripts": {
     "clean-dist": "rimraf dist/src dist/README.md",
-    "copy-assets-to-dist": "cpx README.md dist && cpx LICENSE dist",
+    "copy-assets-to-dist": "ncp README.md dist/README.md",
     "prebuild": "npm run clean-dist && npm run copy-assets-to-dist",
     "build": "tsc --project tsconfig.dist.json",
     "test": "jest --config=jest.config.js"
@@ -17,25 +17,23 @@
     "data-modeling": "^2.0.0",
     "entity-store": "^1.5",
     "lodash": "^4",
-    "pouchdb": "^7.1.1",
-    "rxjs": "6"
+    "pouchdb": "^7.2.2",
+    "rxjs": "^6"
   },
   "private": true,
   "devDependencies": {
-    "@types/jasmine": "^3.3.9",
+    "@types/jasmine": "^3.10.1",
     "@types/lodash": "^4",
     "@types/pouchdb": "^6.4.0",
-    "awesome-typescript-loader": "^5.0.0",
-    "cpx": "^1.5.0",
-    "istanbul-instrumenter-loader": "^3.0.1",
-    "jasmine-core": "~3.5.0",
-    "jest": "^26.4.2",
-    "js.clone": "^0.0.3",
-    "pouchdb-adapter-memory": "^7.1.1",
-    "puppeteer": "^2.0.0",
+    "@types/node": "^14",
+    "ncp": "^2.0.0",
+    "jest": "^26",
+    "jasmine": "^3.10.0",
+    "pouchdb-adapter-memory": "^7.2.2",
     "rimraf": "^3.0.0",
-    "supertest": "^4.0.2",
-    "ts-jest": "^26.4.0",
-    "typescript": "^4"
+    "supertest": "^6.1.6",
+    "ts-jest": "^26",
+    "typescript": "^4",
+    "uuid": "^8.3.2"
   }
 }
