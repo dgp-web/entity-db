@@ -4,4 +4,5 @@ import { EntityTypeMap } from "data-modeling";
 
 export interface Migration<TInitialState extends EntityTypeMap, TTargetState extends EntityTypeMap> extends MigrationInfo {
     readonly execute$: MigrationTask<TInitialState, TTargetState>;
+    readonly revert$?: MigrationTask<TTargetState, TInitialState>;
 }
