@@ -1,15 +1,20 @@
 import { EntityDb, Migration, MigrationEntities } from "../../models";
 import * as _ from "lodash";
 import { AddEntityActionParamsMap } from "entity-store/src/models/composite-entity-action-payload.model";
-import {Many} from "data-modeling";
+import { migrationConfig } from "../../constants";
+
+export interface RunMigrations$Payload<TEntities extends MigrationEntities> {
+    readonly db: EntityDb<TEntities>;
+    readonly migrations: ReadonlyArray<Migration<any, any>>;
+}
 
 /**
  * Describes how the database should be setup and migrated to a new level
  */
-export async function runMigrations$<TEntities extends MigrationEntities>(payload: {
-    readonly db: EntityDb<TEntities>,
-    readonly migrations: ReadonlyArray<Migration<any, any>>
-}): Promise<void> {
+export async function runMigrations$<TEntities extends MigrationEntities>(
+    payload: RunMigrations$Payload<TEntities>,
+    config = migrationConfig
+): Promise<void> {
 
     const db = payload.db;
     const migrations = payload.migrations;

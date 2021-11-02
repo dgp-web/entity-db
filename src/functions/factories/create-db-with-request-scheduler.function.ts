@@ -3,6 +3,7 @@ import { Many } from "data-modeling";
 import { createCRUDEntityDb } from "./create-crud-entity-db.function";
 import { initialize$ } from "../core/initialize$";
 import { runMigrations$ } from "../core/run-migrations$.function";
+import { migrationConfig } from "../../constants";
 
 export interface CreateDbWithRequestSchedulerPayload extends WithRequestScheduler {
     readonly entityTypes: Many<string>;
@@ -10,7 +11,8 @@ export interface CreateDbWithRequestSchedulerPayload extends WithRequestSchedule
 }
 
 export function createDbWithRequestScheduler<TEntityTypeMap extends MigrationEntities>(
-    payload: CreateDbWithRequestSchedulerPayload
+    payload: CreateDbWithRequestSchedulerPayload,
+    config = migrationConfig
 ): EntityDb<TEntityTypeMap> {
 
     const entityTypes = payload.entityTypes;
@@ -28,7 +30,7 @@ export function createDbWithRequestScheduler<TEntityTypeMap extends MigrationEnt
                 publishError: reject
             }));
             if (migrations.length > 0) {
-                await runMigrations$({db, migrations});
+                await runMigrations$({db, migrations}, config);
             }
         }
     } as EntityDb<TEntityTypeMap>;
