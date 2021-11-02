@@ -1,0 +1,1 @@
+export type MigrationId = number | string;

@@ -10,6 +10,7 @@ export * from "./entity-pouch-db-payload.model";
 export * from "./entity-query.model";
 export * from "./migration.model";
 export * from "./migration-entities.model";
+export * from "./migration-id.model";
 export * from "./migration-info.model";
 export * from "./migration-task.model";
 export * from "./object-or-factory.model";
