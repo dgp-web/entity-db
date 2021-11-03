@@ -23,14 +23,17 @@ export function createDbWithRequestScheduler<TEntityTypeMap extends MigrationEnt
     const db = {
         ...crudDb,
         initialize$: async () => {
+
             await new Promise((resolve, reject) => requestScheduler$.next({
                 request$: dbConnection => initialize$(dbConnection, entityTypes as Array<string>),
                 publishResult: resolve,
                 publishError: reject
             }));
+
             if (migrations.length > 0) {
                 await runMigrations$({db, migrations}, config);
             }
+
         }
     } as EntityDb<TEntityTypeMap>;
 
