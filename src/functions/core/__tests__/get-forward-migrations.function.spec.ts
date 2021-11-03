@@ -1,6 +1,3 @@
-import {getCurrentMaxMigrationPosition} from "../get-current-max-migration-position.function";
-import {testMigrationInfo} from "../../../__tests__/constants/test-migration-info.constant";
-import {testMigrationInfo02} from "../../../__tests__/constants/test-migration-info-02.constant";
 import {getForwardMigrations} from "../get-forward-migrations.function";
 import {testMigration} from "../../../__tests__/constants/test-migration.constant";
 import {testMigration02} from "../../../__tests__/constants/test-migration-02.constant";
