@@ -2,6 +2,7 @@ export * from "./close-db-timer.model";
 export * from "./composite-entity-query.model";
 export * from "./composite-entity-query-result.model";
 export * from "./crud-entity-db.model";
+export * from "./date-factory.model";
 export * from "./db-connection-info.model";
 export * from "./db-connection-source.model";
 export * from "./entity-db.model";
