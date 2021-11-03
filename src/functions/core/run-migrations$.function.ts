@@ -1,9 +1,8 @@
-import {EntityDb, Migration, MigrationEntities, MigrationInfo} from "../../models";
+import {EntityDb, Migration, MigrationEntities} from "../../models";
 import * as _ from "lodash";
 import {migrationConfig} from "../../constants";
 import {addMigrationInfo} from "../actions/add-migration-info.action";
-import {Many} from "data-modeling";
-import {getMaxMigrationPosition} from "./get-max-migration-position.function";
+import {getTargetMigrationPosition} from "./get-target-migration-position.function";
 
 // TODO: Extract this default payload that receives an entity-db and a migrations object wherever it occurs
 export interface RunMigrations$Payload<TEntities extends MigrationEntities> {
@@ -69,21 +68,4 @@ export function getBackwardMigrations(payload: {
     backwardMigrations = _.sortBy(backwardMigrations, x => x.position).reverse();
     return backwardMigrations;
 
-}
-
-export function getTargetMigrationPosition(payload: {
-    readonly migrationInfos: Many<MigrationInfo>;
-}, config = migrationConfig): number {
-
-    const migrationInfos = payload.migrationInfos;
-
-    let targetPosition: number;
-
-    if (config.targetMigrationId !== null && config.targetMigrationId !== undefined) {
-        targetPosition = migrationInfos.find(x => x.migrationId === config.targetMigrationId)?.position;
-    } else {
-        targetPosition = getMaxMigrationPosition({migrationInfos});
-    }
-
-    return targetPosition;
 }
