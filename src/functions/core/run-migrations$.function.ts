@@ -6,7 +6,6 @@ import {getForwardMigrations} from "./get-forward-migrations.function";
 import {getBackwardMigrations} from "./get-backward-migrations.function";
 import {getCurrentMaxMigrationPosition} from "./get-current-max-migration-position.function";
 
-// TODO: Extract this default payload that receives an entity-db and a migrations object wherever it occurs
 export interface RunMigrations$Payload<TEntities extends MigrationEntities> extends WithMigrations {
     readonly db: EntityDb<TEntities>;
 }

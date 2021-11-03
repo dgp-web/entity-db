@@ -1,13 +1,12 @@
-import { EntityDb, Migration, MigrationEntities, WithRequestScheduler } from "../../models";
-import { Many } from "data-modeling";
-import { createCRUDEntityDb } from "./create-crud-entity-db.function";
-import { initialize$ } from "../core/initialize$";
-import { runMigrations$ } from "../core/run-migrations$.function";
-import { migrationConfig } from "../../constants";
+import {EntityDb, MigrationEntities, WithMigrations, WithRequestScheduler} from "../../models";
+import {Many} from "data-modeling";
+import {createCRUDEntityDb} from "./create-crud-entity-db.function";
+import {initialize$} from "../core/initialize$";
+import {runMigrations$} from "../core/run-migrations$.function";
+import {migrationConfig} from "../../constants";
 
-export interface CreateDbWithRequestSchedulerPayload extends WithRequestScheduler {
+export interface CreateDbWithRequestSchedulerPayload extends WithRequestScheduler, WithMigrations {
     readonly entityTypes: Many<string>;
-    readonly migrations: ReadonlyArray<Migration<any, any>>;
 }
 
 export function createDbWithRequestScheduler<TEntityTypeMap extends MigrationEntities>(
