@@ -9,7 +9,7 @@ export function getRequiredBackwardMigrationPositions(payload: {
     const currentPosition = payload.currentPosition;
     const targetPosition = payload.targetPosition;
 
-    const length = targetPosition - currentPosition;
+    const length = currentPosition - targetPosition;
 
     return Array.from({length}, (_, i) => getNextBackwardMigrationPosition({
         i, currentPosition
