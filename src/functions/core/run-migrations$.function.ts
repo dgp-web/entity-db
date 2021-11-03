@@ -1,13 +1,14 @@
-import {EntityDb, Migration, MigrationEntities} from "../../models";
-import * as _ from "lodash";
+import {EntityDb, MigrationEntities, WithMigrations} from "../../models";
 import {migrationConfig} from "../../constants";
 import {addMigrationInfo} from "../actions/add-migration-info.action";
 import {getTargetMigrationPosition} from "./get-target-migration-position.function";
+import {getForwardMigrations} from "./get-forward-migrations.function";
+import {getBackwardMigrations} from "./get-backward-migrations.function";
+import {getCurrentMaxMigrationPosition} from "./get-current-max-migration-position.function";
 
 // TODO: Extract this default payload that receives an entity-db and a migrations object wherever it occurs
-export interface RunMigrations$Payload<TEntities extends MigrationEntities> {
+export interface RunMigrations$Payload<TEntities extends MigrationEntities> extends WithMigrations {
     readonly db: EntityDb<TEntities>;
-    readonly migrations: ReadonlyArray<Migration<any, any>>;
 }
 
 /**
@@ -26,10 +27,11 @@ export async function runMigrations$<TEntities extends MigrationEntities>(
     const result = await db.get$({migrationInfo: "all"});
 
     const migrationInfos = Object.values(result.migrationInfo);
-    const targetPosition = getTargetMigrationPosition({migrationInfos}, config);
+    const targetPosition = getTargetMigrationPosition({migrations}, config);
+    const currentPosition = getCurrentMaxMigrationPosition({migrationInfos});
 
-    const forwardMigrations = getForwardMigrations({migrations, targetPosition});
-    const backwardMigrations = getBackwardMigrations({targetPosition, migrations});
+    const forwardMigrations = getForwardMigrations({migrations, targetPosition, currentPosition});
+    const backwardMigrations = getBackwardMigrations({migrations, targetPosition, currentPosition});
 
     for (const migration of forwardMigrations) {
         await migration.execute$({from: db, to: db});
@@ -42,30 +44,3 @@ export async function runMigrations$<TEntities extends MigrationEntities>(
     }
 }
 
-export function getForwardMigrations(payload: {
-    readonly migrations: ReadonlyArray<Migration<any, any>>;
-    readonly targetPosition: number;
-}): ReadonlyArray<Migration<any, any>> {
-
-    const migrations = payload.migrations;
-    const targetPosition = payload.targetPosition;
-
-    let forwardMigrations = migrations.filter(migration => migration.position > targetPosition);
-    forwardMigrations = _.sortBy(forwardMigrations, x => x.position);
-    return forwardMigrations;
-
-}
-
-export function getBackwardMigrations(payload: {
-    readonly migrations: ReadonlyArray<Migration<any, any>>;
-    readonly targetPosition: number;
-}): ReadonlyArray<Migration<any, any>> {
-
-    const migrations = payload.migrations;
-    const targetPosition = payload.targetPosition;
-
-    let backwardMigrations = migrations.filter(migration => migration.position > targetPosition);
-    backwardMigrations = _.sortBy(backwardMigrations, x => x.position).reverse();
-    return backwardMigrations;
-
-}

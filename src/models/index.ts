@@ -24,3 +24,4 @@ export * from "./crud-entity-db.model";
 export * from "./with-disable-auto-migration.model";
 export * from "./with-request-scheduler.model";
 export * from "./with-target-migration-id.model";
+export * from "./with-migrations.model";
