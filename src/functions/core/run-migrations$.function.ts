@@ -5,8 +5,6 @@ import {getTargetMigrationPosition} from "../migrations/get-target-migration-pos
 import {getForwardMigrations} from "../migrations/forward/get-forward-migrations.function";
 import {getBackwardMigrations} from "../migrations/backward/get-backward-migrations.function";
 import {getCurrentMaxMigrationPosition} from "../migrations/get-current-max-migration-position.function";
-import {getRequiredForwardMigrationPositions} from "../migrations/forward/get-required-forward-migration-positions.function";
-import {getRequiredBackwardMigrationPositions} from "../migrations/backward/get-required-backward-migration-positions.function";
 import {tryThrowDowngradeFailed} from "../migrations/backward/try-throw-downgrade-failed.function";
 import {tryThrowUpgradeFailed} from "../migrations/forward/try-throw-upgrade-failed.function";
 
@@ -36,13 +34,11 @@ export async function runMigrations$<TEntities extends MigrationEntities>(
 
     const forwardMigrations = getForwardMigrations({migrations, targetPosition, currentPosition});
 
-    const positionsToMigrateForward = getRequiredForwardMigrationPositions({currentPosition, targetPosition});
-    tryThrowUpgradeFailed({currentPosition, targetPosition, forwardMigrations, positionsToMigrateForward});
+    tryThrowUpgradeFailed({currentPosition, targetPosition, forwardMigrations});
 
     const backwardMigrations = getBackwardMigrations({migrations, targetPosition, currentPosition});
 
-    const positionsToMigrateBackward = getRequiredBackwardMigrationPositions({currentPosition, targetPosition});
-    tryThrowDowngradeFailed({currentPosition, targetPosition, backwardMigrations, positionsToMigrateBackward});
+    tryThrowDowngradeFailed({currentPosition, targetPosition, backwardMigrations});
 
     for (const migration of forwardMigrations) {
         await migration.execute$({from: db, to: db});

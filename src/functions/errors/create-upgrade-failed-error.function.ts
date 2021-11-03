@@ -10,7 +10,7 @@ export function createUpgradeFailedError(payload: {
 However, the needed migrations are not available. 
 Please ensure a) that the correct target version has been selected and b) that migrations for all versions have been provided.`
 
-    return Error(message);
+    return new Error(message);
 
 }
 
