@@ -1,8 +1,7 @@
-import {EntityDb, Migration, MigrationEntities, MigrationInfo} from "../../models";
+import {EntityDb, Migration, MigrationEntities} from "../../models";
 import * as _ from "lodash";
-import {AddEntityActionParamsMap} from "entity-store/src/models/composite-entity-action-payload.model";
 import {migrationConfig} from "../../constants";
-import {createMigrationInfo} from "../factories/create-migration-info.function";
+import {addMigrationInfo} from "../actions/add-migration-info.action";
 
 // TODO: Extract this default payload that receives an entity-db and a migrations object wherever it occurs
 export interface RunMigrations$Payload<TEntities extends MigrationEntities> {
@@ -36,16 +35,5 @@ export async function runMigrations$<TEntities extends MigrationEntities>(
     for (const migration of newMigrations) {
         await migration.execute$({from: db, to: db});
         await db.dispatch$(addMigrationInfo(migration));
-    }
-}
-
-
-export function addMigrationInfo<TEntities extends MigrationEntities>(migration: Migration<any, any>) {
-    return {
-        add: {
-            migrationInfo: {
-                [migration.migrationId]: createMigrationInfo(migration)
-            }
-        } as AddEntityActionParamsMap<TEntities, null>
     }
 }
