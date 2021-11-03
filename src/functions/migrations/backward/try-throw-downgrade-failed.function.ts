@@ -20,7 +20,7 @@ export function tryThrowDowngradeFailed(payload: {
     const availableBackwardMigrationPositions = backwardMigrations.map(toPosition);
 
     if (availableBackwardMigrationPositions.length > 0
-        && positionsToMigrateBackward.every(x => !availableBackwardMigrationPositions.includes(x))) return;
+        && positionsToMigrateBackward.every(x => availableBackwardMigrationPositions.includes(x))) return;
 
     throw createDowngradeFailedError({targetVersion: targetPosition, currentVersion: currentPosition});
 
