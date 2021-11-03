@@ -1,7 +1,9 @@
-import {EntityDb, Migration, MigrationEntities} from "../../models";
+import {EntityDb, Migration, MigrationEntities, MigrationInfo} from "../../models";
 import * as _ from "lodash";
 import {migrationConfig} from "../../constants";
 import {addMigrationInfo} from "../actions/add-migration-info.action";
+import {Many} from "data-modeling";
+import {getMaxMigrationPosition} from "./get-max-migration-position.function";
 
 // TODO: Extract this default payload that receives an entity-db and a migrations object wherever it occurs
 export interface RunMigrations$Payload<TEntities extends MigrationEntities> {
@@ -17,23 +19,71 @@ export async function runMigrations$<TEntities extends MigrationEntities>(
     config = migrationConfig
 ): Promise<void> {
 
+    if (config.disableAutoMigrations) return;
+
     const db = payload.db;
     const migrations = payload.migrations;
 
     const result = await db.get$({migrationInfo: "all"});
 
-    let migrationInfos = Object.values(result.migrationInfo);
-    migrationInfos = _.sortBy(migrationInfos, x => x.position);
-    // TODO: Adjust so we get the target position
-    // TODO: Extract getMaxPosition as default if no targetMigrationId is passed
-    // TODO: Extract getTargetMigrationPosition
-    // TODO: Add and test error handling as specified
-    const maxPosition = migrationInfos.length > 0 ? _.max(migrationInfos.map(x => x.position)) : 0;
+    const migrationInfos = Object.values(result.migrationInfo);
+    const targetPosition = getTargetMigrationPosition({migrationInfos}, config);
 
-    const newMigrations = migrations.filter(migration => migration.position > maxPosition);
+    const forwardMigrations = getForwardMigrations({migrations, targetPosition});
+    const backwardMigrations = getBackwardMigrations({targetPosition, migrations});
 
-    for (const migration of newMigrations) {
+    for (const migration of forwardMigrations) {
         await migration.execute$({from: db, to: db});
         await db.dispatch$(addMigrationInfo(migration));
     }
+
+    for (const migration of backwardMigrations) {
+        await migration.execute$({from: db, to: db});
+        await db.dispatch$(addMigrationInfo(migration));
+    }
+}
+
+export function getForwardMigrations(payload: {
+    readonly migrations: ReadonlyArray<Migration<any, any>>;
+    readonly targetPosition: number;
+}): ReadonlyArray<Migration<any, any>> {
+
+    const migrations = payload.migrations;
+    const targetPosition = payload.targetPosition;
+
+    let forwardMigrations = migrations.filter(migration => migration.position > targetPosition);
+    forwardMigrations = _.sortBy(forwardMigrations, x => x.position);
+    return forwardMigrations;
+
+}
+
+export function getBackwardMigrations(payload: {
+    readonly migrations: ReadonlyArray<Migration<any, any>>;
+    readonly targetPosition: number;
+}): ReadonlyArray<Migration<any, any>> {
+
+    const migrations = payload.migrations;
+    const targetPosition = payload.targetPosition;
+
+    let backwardMigrations = migrations.filter(migration => migration.position > targetPosition);
+    backwardMigrations = _.sortBy(backwardMigrations, x => x.position).reverse();
+    return backwardMigrations;
+
+}
+
+export function getTargetMigrationPosition(payload: {
+    readonly migrationInfos: Many<MigrationInfo>;
+}, config = migrationConfig): number {
+
+    const migrationInfos = payload.migrationInfos;
+
+    let targetPosition: number;
+
+    if (config.targetMigrationId !== null && config.targetMigrationId !== undefined) {
+        targetPosition = migrationInfos.find(x => x.migrationId === config.targetMigrationId)?.position;
+    } else {
+        targetPosition = getMaxMigrationPosition({migrationInfos});
+    }
+
+    return targetPosition;
 }
