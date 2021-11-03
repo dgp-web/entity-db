@@ -1,6 +1,6 @@
 import {getForwardMigrations} from "../get-forward-migrations.function";
-import {testMigration} from "../../../__tests__/constants/test-migration.constant";
-import {testMigration02} from "../../../__tests__/constants/test-migration-02.constant";
+import {testMigration} from "../../../../__tests__/constants/test-migration.constant";
+import {testMigration02} from "../../../../__tests__/constants/test-migration-02.constant";
 
 describe("getForwardMigrations", () => {
 

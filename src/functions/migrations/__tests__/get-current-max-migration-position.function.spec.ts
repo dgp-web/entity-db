@@ -2,7 +2,7 @@ import {getCurrentMaxMigrationPosition} from "../get-current-max-migration-posit
 import {testMigrationInfo} from "../../../__tests__/constants/test-migration-info.constant";
 import {testMigrationInfo02} from "../../../__tests__/constants/test-migration-info-02.constant";
 
-describe("getMaxMigrationPosition", () => {
+describe("getCurrentMaxMigrationPosition", () => {
 
     it(`should return the max of the passed migrationInfos' positions`, () => {
         const max = getCurrentMaxMigrationPosition({migrationInfos: [testMigrationInfo, testMigrationInfo02]})

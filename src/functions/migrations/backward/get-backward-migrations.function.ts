@@ -1,4 +1,4 @@
-import {Migration, WithMigrations} from "../../models";
+import {Migration, WithMigrations} from "../../../models";
 import * as _ from "lodash";
 
 export function getBackwardMigrations(payload: {
