@@ -1,16 +1,17 @@
-import { EntityDb, Migration, MigrationEntities, WithRequestScheduler } from "../../models";
-import { Many } from "data-modeling";
-import { createCRUDEntityDb } from "./create-crud-entity-db.function";
-import { initialize$ } from "../core/initialize$";
-import { runMigrations$ } from "../core/run-migrations$.function";
+import {EntityDb, MigrationEntities, WithMigrations, WithRequestScheduler} from "../../models";
+import {Many} from "data-modeling";
+import {createCRUDEntityDb} from "./create-crud-entity-db.function";
+import {initialize$} from "../core/initialize$";
+import {runMigrations$} from "../core/run-migrations$.function";
+import {migrationConfig} from "../../constants";
 
-export interface CreateDbWithRequestSchedulerPayload extends WithRequestScheduler {
+export interface CreateDbWithRequestSchedulerPayload extends WithRequestScheduler, WithMigrations {
     readonly entityTypes: Many<string>;
-    readonly migrations: ReadonlyArray<Migration<any, any>>;
 }
 
 export function createDbWithRequestScheduler<TEntityTypeMap extends MigrationEntities>(
-    payload: CreateDbWithRequestSchedulerPayload
+    payload: CreateDbWithRequestSchedulerPayload,
+    config = migrationConfig
 ): EntityDb<TEntityTypeMap> {
 
     const entityTypes = payload.entityTypes;
@@ -28,7 +29,7 @@ export function createDbWithRequestScheduler<TEntityTypeMap extends MigrationEnt
                 publishError: reject
             }));
             if (migrations.length > 0) {
-                await runMigrations$({db, migrations});
+                await runMigrations$({db, migrations}, config);
             }
         }
     } as EntityDb<TEntityTypeMap>;

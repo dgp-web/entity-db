@@ -40,5 +40,5 @@ export function createEntityPouchDb<TEntityTypeMap extends MigrationEntities>(
             () => console.error("Critical DB processing effect completion")
         );
 
-    return createDbWithRequestScheduler({requestScheduler$, migrations, entityTypes});
+    return createDbWithRequestScheduler({requestScheduler$, migrations, entityTypes}, config);
 }

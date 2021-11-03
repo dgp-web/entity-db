@@ -1,5 +1,7 @@
+import {MigrationId} from "./migration-id.model";
+
 export interface MigrationInfo {
-    readonly migrationId: number;
+    readonly migrationId: MigrationId;
     readonly label: string;
     readonly description?: string;
     readonly position: number;

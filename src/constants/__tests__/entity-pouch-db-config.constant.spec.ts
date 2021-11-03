@@ -1,12 +1,15 @@
-import { entityPouchDbConfig } from "../entity-pouch-db-config.constant";
+import { migrationConfig } from "../migration-config.constant";
 
-describe("entityPouchDbConfig", () => {
+describe("migrationConfig", () => {
 
-    const config = entityPouchDbConfig;
+    const config = migrationConfig;
 
-    it(`keepIdleConnectionAlivePeriod should be 5000`, () => {
-        expect(config.keepIdleConnectionAlivePeriod).toBe(5000);
+    it(`targetMigrationId should be undefined`, () => {
+        expect(config.targetMigrationId).toBeUndefined();
     });
 
+    it(`disableAutoMigrations should be undefined`, () => {
+        expect(config.disableAutoMigrations).toBeUndefined();
+    });
 
 });
