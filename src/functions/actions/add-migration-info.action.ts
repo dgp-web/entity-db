@@ -4,13 +4,17 @@ import {AddEntityActionParamsMap} from "entity-store/src/models/composite-entity
 import {defaultDateFactory} from "../../constants";
 
 export function addMigrationInfo<TEntities extends MigrationEntities>(migration: Migration<any, any>, isReversal?: boolean) {
+
+    const migrationInfo = createMigrationInfo(migration, {
+        isReversal, ...defaultDateFactory
+    });
+
+    const key = migrationInfo.migrationId + "." + migrationInfo.executionDate;
+
     return {
         add: {
             migrationInfo: {
-                [migration.migrationId]: createMigrationInfo(migration, {
-                    isReversal,
-                    ...defaultDateFactory
-                })
+                [key]: migrationInfo
             }
         } as AddEntityActionParamsMap<TEntities, null>
     }

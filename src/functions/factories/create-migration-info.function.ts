@@ -4,13 +4,16 @@ import {defaultDateFactory} from "../../constants";
 export function createMigrationInfo(migration: Migration<any, any>, config: {
     readonly isReversal?: boolean;
 } & DateFactory = {
-    ...defaultDateFactory}): MigrationInfo {
+    ...defaultDateFactory
+}): MigrationInfo {
+    const executionDate = config.createDate().valueOf();
+
     return {
         migrationId: migration.migrationId,
         label: migration.label,
         position: migration.position,
         description: migration.description,
-        executionDate: config.createDate().valueOf(),
+        executionDate,
         isReversal: config.isReversal
     };
 }
