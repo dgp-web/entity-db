@@ -8,7 +8,7 @@ describe("getNextBackwardMigrationPosition", () => {
         const result = getNextBackwardMigrationPosition({
             currentPosition, i: 0
         });
-        expect(result).toBe(1);
+        expect(result).toBe(2);
     });
 
 });

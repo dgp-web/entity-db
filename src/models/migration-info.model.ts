@@ -6,4 +6,5 @@ export interface MigrationInfo {
     readonly description?: string;
     readonly position: number;
     readonly executionDate?: number;
+    readonly isReversal?: boolean;
 }

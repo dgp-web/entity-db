@@ -9,7 +9,7 @@ describe("getRequiredBackwardMigrationPositions", () => {
             targetPosition: 1
         });
 
-        expect(result).toEqual([2, 1]);
+        expect(result).toEqual([3, 2]);
 
     });
 

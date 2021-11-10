@@ -4,5 +4,5 @@ export function getNextBackwardMigrationPosition(payload: {
 }): number {
     const i = payload.i;
     const currentPosition = payload.currentPosition;
-    return currentPosition - (i + 1);
+    return currentPosition - i;
 }

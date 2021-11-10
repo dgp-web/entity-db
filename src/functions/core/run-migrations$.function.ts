@@ -46,8 +46,8 @@ export async function runMigrations$<TEntities extends MigrationEntities>(
     }
 
     for (const migration of backwardMigrations) {
-        await migration.execute$({from: db, to: db});
-        await db.dispatch$(addMigrationInfo(migration));
+        await migration.revert$({from: db, to: db});
+        await db.dispatch$(addMigrationInfo(migration, true));
     }
 }
 

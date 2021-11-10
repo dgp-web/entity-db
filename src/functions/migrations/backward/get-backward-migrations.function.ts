@@ -10,7 +10,7 @@ export function getBackwardMigrations(payload: {
     const targetPosition = payload.targetPosition;
     const currentPosition = payload.currentPosition;
 
-    let backwardMigrations = migrations.filter(migration => migration.position >= targetPosition && migration.position < currentPosition);
+    let backwardMigrations = migrations.filter(migration => migration.position > targetPosition && migration.position <= currentPosition);
     backwardMigrations = _.sortBy(backwardMigrations, x => x.position).reverse();
     return backwardMigrations;
 

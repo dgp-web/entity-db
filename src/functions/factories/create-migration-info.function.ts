@@ -1,12 +1,16 @@
-import {Migration, MigrationInfo} from "../../models";
+import {DateFactory, Migration, MigrationInfo} from "../../models";
 import {defaultDateFactory} from "../../constants";
 
-export function createMigrationInfo(migration: Migration<any, any>, config = defaultDateFactory): MigrationInfo {
+export function createMigrationInfo(migration: Migration<any, any>, config: {
+    readonly isReversal?: boolean;
+} & DateFactory = {
+    ...defaultDateFactory}): MigrationInfo {
     return {
         migrationId: migration.migrationId,
         label: migration.label,
         position: migration.position,
         description: migration.description,
-        executionDate: config.createDate().valueOf()
+        executionDate: config.createDate().valueOf(),
+        isReversal: config.isReversal
     };
 }
