@@ -1,13 +1,17 @@
-import { EntityTypeMap, KVS } from "entity-store";
+import {createEntityState, EntityTypeMap, KVS} from "entity-store";
 import {
     AddEntityActionParamsMap,
     ClearEntityActionParamsList,
     CompositeEntityActionPayload,
-    RemoveEntityActionParamsMap, SelectEntityActionParamsMap, SetEntityActionParamsMap, UpdateEntityActionParamsMap
+    RemoveEntityActionParamsMap,
+    SelectEntityActionParamsMap,
+    SetEntityActionParamsMap,
+    UpdateEntityActionParamsMap
 } from "entity-store/src/models";
 import {
     addEntitiesToState,
-    removeEntitiesFromState, selectEntitiesInState,
+    removeEntitiesFromState,
+    selectEntitiesInState,
     setEntitiesInState,
     updateEntitiesInState
 } from "entity-store/src/functions";
@@ -25,14 +29,18 @@ export async function dispatch$<TEntityTypeMap extends EntityTypeMap>(
     // -----
     let result1;
     let entity;
-
-
+    
     // Clear
     if (action.clear) {
         const entityTypesToClear = action.clear as ClearEntityActionParamsList<TEntityTypeMap, any>;
-        let result = await dbConnection.allDocs<any>({keys: entityTypesToClear as Array<string>});
-        result.rows.forEach(x => {
-            entityTypeBulkUpdateMap[x.id] = {_id: x.id, _deleted: true};
+        result1 = await dbConnection.bulkGet({
+            docs: entityTypesToClear.map(x => {
+                return {id: x} as any;
+            })
+        });
+        entityTypesToClear.forEach(entityType => {
+            const currentState = entity.find(x => x._id === entityType) as any;
+            entityTypeBulkUpdateMap[entityType as string] = {...currentState, ...createEntityState()};
         });
     }
 
