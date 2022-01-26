@@ -29,7 +29,7 @@ export async function dispatch$<TEntityTypeMap extends EntityTypeMap>(
     // -----
     let result1;
     let entity;
-    
+
     // Clear
     if (action.clear) {
         const entityTypesToClear = action.clear as ClearEntityActionParamsList<TEntityTypeMap, any>;
@@ -38,6 +38,15 @@ export async function dispatch$<TEntityTypeMap extends EntityTypeMap>(
                 return {id: x} as any;
             })
         });
+        entity = _.flatten(result1.results
+            .map(x => {
+                return x.docs.map(doc => {
+
+                    const result: PouchDB.Core.GetMeta & PouchDB.Core.IdMeta = (doc as any).ok;
+                    return result as any;
+                });
+
+            }));
         entityTypesToClear.forEach(entityType => {
             const currentState = entity.find(x => x._id === entityType) as any;
             entityTypeBulkUpdateMap[entityType as string] = {...currentState, ...createEntityState()};
