@@ -1,7 +1,6 @@
 import {testMigration02} from "../../../../__tests__/constants/test-migration-02.constant";
 import {tryThrowDowngradeFailed} from "../try-throw-downgrade-failed.function";
 import {createDowngradeFailedError} from "../../../errors/create-downgrade-failed-error.function";
-import {testMigration} from "../../../../__tests__/constants/test-migration.constant";
 
 describe("tryThrowDowngradeFailed", () => {
 
@@ -25,7 +24,7 @@ describe("tryThrowDowngradeFailed", () => {
     it("should not throw an error if all required backwardMigrations are available", () => {
         expect(
             () => tryThrowDowngradeFailed({
-                backwardMigrations: [testMigration],
+                backwardMigrations: [testMigration02],
                 currentPosition: 2,
                 targetPosition: 1
             })
