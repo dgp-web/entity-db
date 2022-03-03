@@ -1,4 +1,4 @@
-export class DowngradeFailureError extends Error {
+export class DowngradeFailedError extends Error {
 
     readonly type = "[EntityDb] DowngradeFailed";
 

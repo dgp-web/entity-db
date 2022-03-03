@@ -5,7 +5,7 @@ export * from "./crud-entity-db.model";
 export * from "./date-factory.model";
 export * from "./db-connection-info.model";
 export * from "./db-connection-source.model";
-export * from "./downgrade-failre-error.model";
+export * from "./downgrade-failed-error.model";
 export * from "./entity-db.model";
 export * from "./entity-pouch-db-config.model";
 export * from "./entity-pouch-db-payload.model";

@@ -1,9 +1,9 @@
-import {DowngradeFailureError} from "../../models";
+import {DowngradeFailedError} from "../../models";
 
 export function createDowngradeFailedError(payload: {
     readonly currentVersion: number;
     readonly targetVersion: number;
-}): DowngradeFailureError {
-    return new DowngradeFailureError(payload);
+}): DowngradeFailedError {
+    return new DowngradeFailedError(payload);
 }
 
