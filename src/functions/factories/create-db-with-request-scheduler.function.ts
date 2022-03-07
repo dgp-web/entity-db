@@ -4,8 +4,10 @@ import {createCRUDEntityDb} from "./create-crud-entity-db.function";
 import {initialize$} from "../core/initialize$";
 import {runMigrations$} from "../core/run-migrations$.function";
 import {migrationConfig} from "../../constants";
+import {WithPouchDbRef} from "../effects/with-pouch-db-ref.model";
+import {WithDbConnectionSource} from "../../models/with-db-connection-source.model";
 
-export interface CreateDbWithRequestSchedulerPayload extends WithRequestScheduler, WithMigrations {
+export interface CreateDbWithRequestSchedulerPayload extends WithRequestScheduler, WithMigrations, WithPouchDbRef, WithDbConnectionSource {
     readonly entityTypes: Many<string>;
 }
 
@@ -17,8 +19,10 @@ export function createDbWithRequestScheduler<TEntityTypeMap extends MigrationEnt
     const entityTypes = payload.entityTypes;
     const requestScheduler$ = payload.requestScheduler$;
     const migrations = payload.migrations;
+    const dbConnectionSource$ = payload.dbConnectionSource$;
+    const dbRef = payload.dbRef;
 
-    const crudDb = createCRUDEntityDb<TEntityTypeMap>({requestScheduler$});
+    const crudDb = createCRUDEntityDb<TEntityTypeMap>({requestScheduler$, dbRef, dbConnectionSource$});
 
     const db = {
         ...crudDb,

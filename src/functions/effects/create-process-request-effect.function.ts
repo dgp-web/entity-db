@@ -1,15 +1,15 @@
-import { PouchDbRef, WithRequestScheduler } from "../../models";
-import { entityPouchDbConfig } from "../../constants";
-import { Observable } from "rxjs";
-import { concatMap } from "rxjs/operators";
-import { startRequest$ } from "../request-processing/start-request$.function";
-import { processRequest$ } from "../request-processing/process-request$";
-import { finalizeRequest$ } from "../request-processing/finalize-request$.function";
-import { WithDbConnectionSource } from "../../models/with-db-connection-source.model";
-import { WithCloseDbTimer } from "../../models/with-close-db-timer.model";
+import {WithRequestScheduler} from "../../models";
+import {entityPouchDbConfig} from "../../constants";
+import {Observable} from "rxjs";
+import {concatMap} from "rxjs/operators";
+import {startRequest$} from "../request-processing/start-request$.function";
+import {processRequest$} from "../request-processing/process-request$";
+import {finalizeRequest$} from "../request-processing/finalize-request$.function";
+import {WithDbConnectionSource} from "../../models/with-db-connection-source.model";
+import {WithCloseDbTimer} from "../../models/with-close-db-timer.model";
+import {WithPouchDbRef} from "./with-pouch-db-ref.model";
 
-export interface ProcessRequestEffectPayload extends WithRequestScheduler, WithDbConnectionSource, WithCloseDbTimer {
-    readonly dbRef: PouchDbRef;
+export interface ProcessRequestEffectPayload extends WithRequestScheduler, WithDbConnectionSource, WithCloseDbTimer, WithPouchDbRef {
 }
 
 export function logError(e: Error) {

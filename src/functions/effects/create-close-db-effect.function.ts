@@ -1,13 +1,13 @@
-import { Observable } from "rxjs";
-import { switchMap } from "rxjs/operators";
-import { createClosingDbConnectionInfo } from "../factories/create-closing-db-connection-info.function";
-import { hasOpenDbConnection } from "../db-connection/has-open-db-connection.function";
-import { markDbConnectionAsClosed } from "../db-connection/mark-db-connection-as-closed.function";
-import { ofNull } from "../util/of-null.function";
-import { WithDbConnectionSource } from "../../models/with-db-connection-source.model";
-import { WithCloseDbTimer } from "../../models/with-close-db-timer.model";
-import { tryCreateTimer$ } from "../util/try-create-timer$.function";
-import { filterNotNull } from "../util/filter-not-null.function";
+import {Observable} from "rxjs";
+import {switchMap} from "rxjs/operators";
+import {createClosingDbConnectionInfo} from "../factories/create-closing-db-connection-info.function";
+import {hasOpenDbConnection} from "../db-connection/has-open-db-connection.function";
+import {markDbConnectionAsClosed} from "../db-connection/mark-db-connection-as-closed.function";
+import {ofNull} from "../util/of-null.function";
+import {WithDbConnectionSource} from "../../models/with-db-connection-source.model";
+import {WithCloseDbTimer} from "../../models/with-close-db-timer.model";
+import {tryCreateTimer$} from "../util/try-create-timer$.function";
+import {filterNotNull} from "../util/filter-not-null.function";
 
 export interface CloseDbEffectPayload extends WithDbConnectionSource, WithCloseDbTimer {
 }
