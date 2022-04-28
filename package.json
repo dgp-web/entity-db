@@ -1,6 +1,6 @@
 {
   "name": "entity-db",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "license": "MIT",
   "author": {
     "name": "dgp-web",
@@ -14,8 +14,8 @@
     "test": "jest --config=jest.config.js"
   },
   "dependencies": {
-    "data-modeling": "^2.0.0",
-    "entity-store": "^1.5",
+    "data-modeling": "^3.1.0",
+    "entity-store": "^2.0.0",
     "lodash": "^4",
     "pouchdb": "^7.2.2",
     "rxjs": "^6"
