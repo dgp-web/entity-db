@@ -1,4 +1,4 @@
-import {createEntityState, EntityTypeMap, KVS} from "entity-store";
+import { createEntityState, EntityTypeMap, KVS } from "entity-store";
 import {
     AddEntityActionParamsMap,
     ClearEntityActionParamsList,
@@ -72,9 +72,10 @@ export async function dispatch$<TEntityTypeMap extends EntityTypeMap>(
                 });
 
             }));
-        entityTypesFromWhichToRemoveKeys.map(async entityType => {
+        entityTypesFromWhichToRemoveKeys.map(entityType => {
             const idsToRemove = entityTypesToRemoveKeysMap[entityType];
-            const currentState = entity.find(x => x._id === entityType) as any;
+            const currentState = entityTypeBulkUpdateMap[entityType]
+                || entity.find(x => x._id === entityType) as any;
             entityTypeBulkUpdateMap[entityType] = removeEntitiesFromState(currentState as any, idsToRemove);
         });
     }
@@ -100,7 +101,8 @@ export async function dispatch$<TEntityTypeMap extends EntityTypeMap>(
             }));
         entityTypesFromWhichToSetKeys.map(entityType => {
             const entityToSetKVS = entityTypesToSetKeysMap[entityType];
-            const currentState = entity.find(x => x._id === entityType) as any;
+            const currentState = entityTypeBulkUpdateMap[entityType]
+                || entity.find(x => x._id === entityType) as any;
             entityTypeBulkUpdateMap[entityType] = setEntitiesInState(currentState as any, entityToSetKVS);
         });
     }
@@ -126,7 +128,8 @@ export async function dispatch$<TEntityTypeMap extends EntityTypeMap>(
             }));
         entityTypesFromWhichToAddKeys.map(entityType => {
             const entityToAddKVS = entityTypesToAddKeysMap[entityType];
-            const currentState = entity.find(x => x._id === entityType) as any;
+            const currentState = entityTypeBulkUpdateMap[entityType]
+                || entity.find(x => x._id === entityType) as any;
             entityTypeBulkUpdateMap[entityType] = addEntitiesToState(currentState as any, entityToAddKVS);
         });
     }
@@ -152,7 +155,8 @@ export async function dispatch$<TEntityTypeMap extends EntityTypeMap>(
             }));
         entityTypesFromWhichToUpdateKeys.map(entityType => {
             const entityToUpdateKVS = entityTypesToUpdateKeysMap[entityType];
-            const currentState = entity.find(x => x._id === entityType) as any;
+            const currentState = entityTypeBulkUpdateMap[entityType]
+                || entity.find(x => x._id === entityType) as any;
             entityTypeBulkUpdateMap[entityType] = updateEntitiesInState(currentState as any, entityToUpdateKVS);
         });
     }
@@ -177,7 +181,8 @@ export async function dispatch$<TEntityTypeMap extends EntityTypeMap>(
             }));
         entityTypesFromWhichToSelectKeys.map(entityType => {
             const entityToSelect = entityTypesToSelectKeysMap[entityType];
-            const currentState = entity.find(x => x._id === entityType) as any;
+            const currentState = entityTypeBulkUpdateMap[entityType]
+                || entity.find(x => x._id === entityType) as any;
             entityTypeBulkUpdateMap[entityType] = selectEntitiesInState(currentState as any, entityToSelect);
         });
     }
