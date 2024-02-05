@@ -1,6 +1,6 @@
 import { EntityTypeMap } from "data-modeling";
-import { CRUDEntityDb } from "./crud-entity-db.model";
+import { EntityDbWithReactiveChanges } from "./entity-db-with-reactive-changes.model";
 
-export interface EntityDb<TEntityTypeMap extends EntityTypeMap> extends CRUDEntityDb<TEntityTypeMap> {
+export interface EntityDb<TEntityTypeMap extends EntityTypeMap> extends EntityDbWithReactiveChanges<TEntityTypeMap> {
     initialize$(): Promise<void>;
 }
