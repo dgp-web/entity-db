@@ -9,5 +9,6 @@ module.exports = {
    /* setupFiles: [
         './node_modules/reflect-metadata/Reflect.js'
     ],*/
-    testMatch: ["**/?(*.)+(spec).[jt]s?(x)"]
+    testMatch: ["**/?(*.)+(spec).[jt]s?(x)"],
+    modulePathIgnorePatterns: [".idea"]
 };
