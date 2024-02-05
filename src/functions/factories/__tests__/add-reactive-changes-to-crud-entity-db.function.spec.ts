@@ -1,11 +1,12 @@
 import { addReactiveChangesToCRUDEntityDb } from "../add-reactive-changes-to-crud-entity-db.function";
-import { TestEntities, User } from "../../../__tests__/scenarios/migrations.function.spec";
+import { TestEntities } from "../../../__tests__/scenarios/migrations.function.spec";
 import { ChangesPublishConfig, EntityDb } from "../../../models";
 import { first } from "rxjs/operators";
-import { TestEntityDbAction } from "../../../__tests__/models/test-entity-db-action.model";
 import { testUser } from "../../../__tests__/constants/test-user.constant";
-import { testLocation } from "../../../__tests__/constants/test-location.constant";
 import { createTestEntityPouchDb } from "../../../__tests__/factories/create-test-entity-pouch-db.function";
+import { cacheTestUser } from "../../../__tests__/actions/cache-test-user.action";
+import { cacheTestUserAndLocation } from "../../../__tests__/actions/cache-test-user-and-location.action";
+import { maskUserLabel } from "../../../__tests__/functions/mask-user-label.function";
 
 describe("addReactiveChangesToCRUDEntityDb", () => {
 
@@ -23,13 +24,7 @@ describe("addReactiveChangesToCRUDEntityDb", () => {
 
     it(`should decorate dispatch$ so changes are published via changes$`, async (done) => {
 
-        const action: TestEntityDbAction = {
-            add: {
-                user: {
-                    [testUser.userId]: testUser
-                }
-            }
-        };
+        const action = cacheTestUser();
 
         db.getChanges$(null).pipe(
             first()
@@ -44,24 +39,7 @@ describe("addReactiveChangesToCRUDEntityDb", () => {
 
     it(`should apply the changes publish config if one is given`, async (done) => {
 
-
-        const action: TestEntityDbAction = {
-            add: {
-                user: {
-                    [testUser.userId]: testUser
-                },
-                location: {
-                    [testLocation.locationId]: testLocation
-                }
-            }
-        };
-
-        const maskUserLabel = (user: User): User => {
-            return {
-                ...user,
-                label: "<Secret>"
-            }
-        };
+        const action = cacheTestUserAndLocation();
 
         const config: ChangesPublishConfig<TestEntities> = {
             whitelistedEntities: [
