@@ -11,8 +11,14 @@ export interface User {
     readonly label: string;
 }
 
+export interface Location {
+    readonly locationId: string;
+    readonly label: string;
+}
+
 export interface TestEntities extends MigrationEntities {
     readonly user: User;
+    readonly location: Location;
 }
 
 describe("Migration scenario", () => {

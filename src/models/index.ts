@@ -1,3 +1,4 @@
+export * from "./changes-publish-config.model";
 export * from "./close-db-timer.model";
 export * from "./composite-entity-query.model";
 export * from "./composite-entity-query-result.model";
@@ -9,6 +10,7 @@ export * from "./downgrade-failed-error.model";
 export * from "./entity-db.model";
 export * from "./entity-db-action.model";
 export * from "./entity-db-with-reactive-changes.model";
+export * from "./entity-masking-rules.model";
 export * from "./entity-pouch-db-config.model";
 export * from "./entity-pouch-db-payload.model";
 export * from "./entity-query.model";
