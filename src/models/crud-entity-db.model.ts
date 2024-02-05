@@ -1,10 +1,10 @@
-import {EntityTypeMap} from "data-modeling";
-import {CompositeEntityActionPayload} from "entity-store/src/models";
-import {CompositeEntityQuery} from "./composite-entity-query.model";
-import {CompositeEntityQueryResult} from "./composite-entity-query-result.model";
+import { EntityTypeMap } from "data-modeling";
+import { CompositeEntityQuery } from "./composite-entity-query.model";
+import { CompositeEntityQueryResult } from "./composite-entity-query-result.model";
+import { EntityDbAction } from "./entity-db-action.model";
 
 export interface CRUDEntityDb<TEntityTypeMap extends EntityTypeMap> {
-    dispatch$(action: CompositeEntityActionPayload<TEntityTypeMap, null>): Promise<void>;
+    dispatch$(action: EntityDbAction<TEntityTypeMap>): Promise<void>;
 
     get$(selection: CompositeEntityQuery<TEntityTypeMap>): Promise<CompositeEntityQueryResult<TEntityTypeMap>>;
 

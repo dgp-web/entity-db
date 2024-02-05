@@ -8,7 +8,7 @@ import { EntityDb, PouchDbRef } from "../../../models";
 import * as PouchDB from "pouchdb";
 import { TestRequestScheduler } from "../../../__tests__/models/test-request-scheduler.model";
 import { first } from "rxjs/operators";
-import { CompositeEntityActionPayload } from "entity-store/src/models";
+import { TestEntityDbAction } from "../../../__tests__/models/test-entity-db-action.model";
 
 describe("addReactiveChangesToCRUDEntityDb", () => {
 
@@ -40,7 +40,7 @@ describe("addReactiveChangesToCRUDEntityDb", () => {
 
     it(`should decorate dispatch$ so changes are published via changes$`, async (done) => {
 
-        const action: CompositeEntityActionPayload<TestEntities, null> = {
+        const action: TestEntityDbAction = {
             add: {
                 user: {
                     ["testUserId"]: {

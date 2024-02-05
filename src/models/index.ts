@@ -7,6 +7,7 @@ export * from "./db-connection-info.model";
 export * from "./db-connection-source.model";
 export * from "./downgrade-failed-error.model";
 export * from "./entity-db.model";
+export * from "./entity-db-action.model";
 export * from "./entity-db-with-reactive-changes.model";
 export * from "./entity-pouch-db-config.model";
 export * from "./entity-pouch-db-payload.model";
