@@ -9,6 +9,7 @@ import * as PouchDB from "pouchdb";
 import { TestRequestScheduler } from "../../../__tests__/models/test-request-scheduler.model";
 import { first } from "rxjs/operators";
 import { TestEntityDbAction } from "../../../__tests__/models/test-entity-db-action.model";
+import { testUser } from "../../../__tests__/constants/test-user.constant";
 
 describe("addReactiveChangesToCRUDEntityDb", () => {
 
@@ -43,10 +44,7 @@ describe("addReactiveChangesToCRUDEntityDb", () => {
         const action: TestEntityDbAction = {
             add: {
                 user: {
-                    ["testUserId"]: {
-                        userId: "testUserId",
-                        label: "Test user"
-                    }
+                    [testUser.userId]: testUser
                 }
             }
         };
